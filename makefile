@@ -159,5 +159,6 @@ toggle_debug td : $(jsn_blivep)
 toggle_debug td : $(c_jsn_viewlt)
 toggle_debug td :
 	source $(r_sh__librry); \
-	toggle_debug $(r_csv_bolots) $(r_jsn_blivep) $(r_jsn_viewlt); \
+	toggle_debug $(r_csv_bolots) $(r_jsn_blivep); \
+	toggle_debug $(r_jsn_viewlt) $(r_jsn_blivep); \
 	:
