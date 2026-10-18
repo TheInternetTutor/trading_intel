@@ -276,36 +276,65 @@ function copy_view_lots()
 }
 
 #-----------------------------------------------------------------------
-function proto_filter_lots()
+function toggle_debug()
 {
   local fl_csv=${1};
   local fl_pi=${2};
-  local fl_stable="${fl_csv}.stable";
+  local fl_view=${3};
+  local fl_csv_stable="${fl_csv}.stable";
+  local fl_view_stable="${fl_view}.stable";
 
-  if [ ! -f "${fl_stable}" ]; then
+  # Filter a stable source by exact quoted symbols from the live positions.
+  # The CSV's column-header row is retained; JSONL records are independent.
+  function filter_debug_file()
+  {
+    local fl_source=${1};
+    local fl_target=${2};
+    local fl_tmp="${fl_target}.tmp.$$";
+    local symbol='';
 
-    mv "${fl_csv}" "${fl_stable}";
+    : > "${fl_tmp}" || return 1;
 
-    { echo Symbol; jq '.symbol' ${fl_pi};}  \
-    | while read -r symbol; do
-      grep ${symbol} ${fl_stable};
-    done \
-    > ${fl_csv} \
-    ;
+    if [[ "${fl_source}" == *.csv ]]; then
+      grep -F '"Symbol"' "${fl_source}" > "${fl_tmp}" || true;
+    fi
 
-    cut --characters=-80 ${fl_csv}
-    echo "Debug mode ON: ${fl_csv}";
-    
+    while IFS= read -r symbol; do
+      [[ -n "${symbol}" ]] || continue;
+      grep -F -- "\"${symbol}\"" "${fl_source}" >> "${fl_tmp}" || true;
+    done < <(jq -r '.symbol // empty' "${fl_pi}")
+
+    mv --force "${fl_tmp}" "${fl_target}"
+  }
+
+  if [[ -f "${fl_csv_stable}" && -f "${fl_view_stable}" ]]; then
+    # Both stable originals exist: restore both files and leave debug mode.
+    mv --force "${fl_csv_stable}" "${fl_csv}" || return 1;
+    mv --force "${fl_view_stable}" "${fl_view}" || return 1;
+    echo "Debug mode OFF: ${fl_csv}, ${fl_view}";
+
+  elif [[ -f "${fl_csv_stable}" && ! -f "${fl_view_stable}" ]]; then
+    # Recover the legacy state where CSV debugging was already active.
+    cp --preserve=mode,timestamps "${fl_view}" "${fl_view_stable}" || return 1;
+    filter_debug_file "${fl_view_stable}" "${fl_view}" || return 1;
+    echo "Debug mode ON (viewer added): ${fl_view}";
+
+  elif [[ ! -f "${fl_csv_stable}" && ! -f "${fl_view_stable}" ]]; then
+    # Save both originals before filtering either working file.
+    cp --preserve=mode,timestamps "${fl_csv}" "${fl_csv_stable}" || return 1;
+    cp --preserve=mode,timestamps "${fl_view}" "${fl_view_stable}" || return 1;
+    filter_debug_file "${fl_csv_stable}" "${fl_csv}" || return 1;
+    filter_debug_file "${fl_view_stable}" "${fl_view}" || return 1;
+    echo "Debug mode ON: ${fl_csv}, ${fl_view}";
+
   else
-
-    rm --force ${fl_csv};
-    mv ${fl_stable} ${fl_csv};
-
-    echo "Debug mode OFF: ${fl_csv}";
-
+    echo "ERROR: inconsistent debug state; refusing to overwrite stable data." >&2;
+    echo "  CSV stable: ${fl_csv_stable}" >&2;
+    echo "  Viewer stable: ${fl_view_stable}" >&2;
+    return 1;
   fi;
 
-  echo "Done: proto_filter_lots";
+  echo "Done: toggle_debug";
   return 0;
 }
 

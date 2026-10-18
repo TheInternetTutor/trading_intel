@@ -150,12 +150,14 @@ xxx_yyy_zzz xyz :
 # Note to AI: I think this rule should touch the lot and position 
 # inventories into the future to avoid updating them
 r_jsn_blivep = ${filter %/$(jsn_blivep), $(^)}
+r_jsn_viewlt = ${filter %/view_lots.jsonl, $(^)}
 #.......................................................................
 .PHONY : toggle_debug td
 toggle_debug td : $(sh__librry)
 toggle_debug td : $(csv_bolots)
 toggle_debug td : $(jsn_blivep)
+toggle_debug td : $(c_jsn_viewlt)
 toggle_debug td :
 	source $(r_sh__librry); \
-	toggle_debug $(r_csv_bolots) $(r_jsn_blivep); \
+	toggle_debug $(r_csv_bolots) $(r_jsn_blivep) $(r_jsn_viewlt); \
 	:
