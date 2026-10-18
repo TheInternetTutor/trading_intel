@@ -1,0 +1,14 @@
+Note to AI: we will deal with the errors below later on, not at the moment.
+
+ERROR:ib_insync.wrapper:Error 162, reqId 4: Historical Market Data Service error message:No market data permissions for TSEJ STK, contract: Stock(conId=731074125, symbol='268A', exchange='TSEJ', currency='JPY', localSymbol='268A.T', tradingClass='268A')
+ERROR:ib_insync.wrapper:Error 162, reqId 72: Historical Market Data Service error message:HMDS query returned no data: MPU@AMEX Trades, contract: Stock(conId=733730049, symbol='MPU', exchange='AMEX', currency='USD', localSymbol='MPU', tradingClass='MPU')
+ERROR:ib_insync.wrapper:Error 162, reqId 122: Historical Market Data Service error message:No historical market data for TLRY.OLD/STK@NASDAQ Last 60, contract: Stock(conId=835599999, symbol='TLRY', exchange='NASDAQ', currency='USD', localSymbol='TLRY', tradingClass='NMS')
+ERROR:ib_insync.wrapper:Error 162, reqId 123: Historical Market Data Service error message:No market data permissions for TSE STK, contract: Stock(conId=247231770, symbol='TMQ', exchange='TSE', currency='CAD', localSymbol='TMQ', tradingClass='TMQ')
+ERROR:ib_insync.wrapper:Error 200, reqId 145: No security definition has been found for the request, contract: Stock(conId=490642530, symbol='ZENVF', exchange='PINK', currency='USD', localSymbol='ZENVF', tradingClass='ZENVF')
+
+E2106 reqId=-1 HMDS data farm connection is OK:apachmds
+E162 reqId=4 Historical Market Data Service error message:No market data permissions for TSEJ STK
+E162 reqId=72 Historical Market Data Service error message:HMDS query returned no data: MPU@AMEX Trades
+E162 reqId=122 Historical Market Data Service error message:No historical market data for TLRY.OLD/STK@NASDAQ Last 60
+E162 reqId=123 Historical Market Data Service error message:No market data permissions for TSE STK
+E200 reqId=145 No security definition has been found for the request

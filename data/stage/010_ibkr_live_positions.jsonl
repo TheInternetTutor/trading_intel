@@ -1,0 +1,1794 @@
+{
+  "account": "U8546916",
+  "symbol": "268A",
+  "exchange": "TSEJ",
+  "position": 100.0,
+  "avg_cost": 2652.12,
+  "mark": 0.0,
+  "bid": 0.0,
+  "ask": 0.0,
+  "last": 0.0,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "AAAU",
+  "exchange": "BATS",
+  "position": 10.0,
+  "avg_cost": 54.479,
+  "mark": 45.495000000000005,
+  "bid": 45.49,
+  "ask": 45.5,
+  "last": 45.5,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "ACHR",
+  "exchange": "NYSE",
+  "position": 30.0,
+  "avg_cost": 13.60540665,
+  "mark": 6.3025,
+  "bid": 6.29,
+  "ask": 6.315,
+  "last": 6.29,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "AEHR",
+  "exchange": "NASDAQ",
+  "position": 5.0,
+  "avg_cost": 99.200003,
+  "mark": 101.62,
+  "bid": 101.45,
+  "ask": 101.79,
+  "last": 101.69,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "ALAB",
+  "exchange": "NASDAQ",
+  "position": 2.0,
+  "avg_cost": 336.0,
+  "mark": 285.095,
+  "bid": 284.78,
+  "ask": 285.41,
+  "last": 284.84,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "AMAT",
+  "exchange": "NASDAQ",
+  "position": 1.0,
+  "avg_cost": 507.44,
+  "mark": 492.27,
+  "bid": 491.87,
+  "ask": 492.67,
+  "last": 492.52,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "AMD",
+  "exchange": "NASDAQ",
+  "position": 55.0,
+  "avg_cost": 457.21982015,
+  "mark": 473.39,
+  "bid": 472.75,
+  "ask": 474.03,
+  "last": 473.21,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "AMKR",
+  "exchange": "NASDAQ",
+  "position": 5.0,
+  "avg_cost": 54.2,
+  "mark": 50.265,
+  "bid": 50.2,
+  "ask": 50.33,
+  "last": 50.25,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "ANET",
+  "exchange": "NYSE",
+  "position": 2.0,
+  "avg_cost": 201.0,
+  "mark": 188.975,
+  "bid": 188.6,
+  "ask": 189.35,
+  "last": 188.66,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "APLD",
+  "exchange": "NASDAQ",
+  "position": 20.0,
+  "avg_cost": 41.050005,
+  "mark": 27.2325,
+  "bid": 27.205,
+  "ask": 27.26,
+  "last": 27.21,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "APLY",
+  "exchange": "ARCA",
+  "position": 50.0,
+  "avg_cost": 13.60497,
+  "mark": 11.445,
+  "bid": 11.44,
+  "ask": 11.45,
+  "last": 11.45,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "APP",
+  "exchange": "NASDAQ",
+  "position": 2.0,
+  "avg_cost": 456.00305,
+  "mark": 305.83,
+  "bid": 305.63,
+  "ask": 306.03,
+  "last": 305.86,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "ARM",
+  "exchange": "NASDAQ",
+  "position": 8.0,
+  "avg_cost": 314.47375,
+  "mark": 243.575,
+  "bid": 243.19,
+  "ask": 243.96,
+  "last": 243.6,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "ARQQ",
+  "exchange": "NASDAQ",
+  "position": 25.0,
+  "avg_cost": 53.064148,
+  "mark": 21.060000000000002,
+  "bid": 20.77,
+  "ask": 21.35,
+  "last": 20.97,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "ASML",
+  "exchange": "NASDAQ",
+  "position": 2.0,
+  "avg_cost": 1852.5,
+  "mark": 1764.475,
+  "bid": 1763.4,
+  "ask": 1765.55,
+  "last": 1764.97,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "ASTS",
+  "exchange": "NASDAQ",
+  "position": 8.0,
+  "avg_cost": 104.6819375,
+  "mark": 68.7175,
+  "bid": 68.655,
+  "ask": 68.78,
+  "last": 68.68,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "AVAV",
+  "exchange": "NASDAQ",
+  "position": 5.0,
+  "avg_cost": 230.2,
+  "mark": 160.23000000000002,
+  "bid": 160.16,
+  "ask": 160.3,
+  "last": 160.27,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "AVGO",
+  "exchange": "NASDAQ",
+  "position": 8.0,
+  "avg_cost": 451.875,
+  "mark": 368.615,
+  "bid": 368.26,
+  "ask": 368.97,
+  "last": 368.45,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "AZO",
+  "exchange": "NYSE",
+  "position": 1.0,
+  "avg_cost": 4170.0,
+  "mark": 2958.8599999999997,
+  "bid": 2956.95,
+  "ask": 2960.77,
+  "last": 2958.65,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "BA",
+  "exchange": "NYSE",
+  "position": 5.0,
+  "avg_cost": 247.33,
+  "mark": 214.18,
+  "bid": 214.11,
+  "ask": 214.25,
+  "last": 214.21,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "BBAI",
+  "exchange": "NYSE",
+  "position": 10.0,
+  "avg_cost": 4.04,
+  "mark": 3.2225,
+  "bid": 3.22,
+  "ask": 3.225,
+  "last": 3.22,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "BE",
+  "exchange": "NYSE",
+  "position": 1.0,
+  "avg_cost": 251.0,
+  "mark": 201.23000000000002,
+  "bid": 200.84,
+  "ask": 201.62,
+  "last": 201.35,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "BW",
+  "exchange": "NYSE",
+  "position": 50.0,
+  "avg_cost": 16.422102,
+  "mark": 8.2975,
+  "bid": 8.28,
+  "ask": 8.315,
+  "last": 8.29,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "BWXT",
+  "exchange": "NYSE",
+  "position": 5.0,
+  "avg_cost": 192.5809,
+  "mark": 156.825,
+  "bid": 156.71,
+  "ask": 156.94,
+  "last": 156.81,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "CABA",
+  "exchange": "NASDAQ",
+  "position": 50.0,
+  "avg_cost": 18.126844,
+  "mark": 3.135,
+  "bid": 3.135,
+  "ask": 3.135,
+  "last": 3.135,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "CAT",
+  "exchange": "NYSE",
+  "position": 2.0,
+  "avg_cost": 911.0,
+  "mark": 828.28,
+  "bid": 827.65,
+  "ask": 828.91,
+  "last": 827.9,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "CEG",
+  "exchange": "NASDAQ",
+  "position": 5.0,
+  "avg_cost": 373.7,
+  "mark": 272.88,
+  "bid": 272.73,
+  "ask": 273.03,
+  "last": 272.85,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "CMG",
+  "exchange": "NYSE",
+  "position": 10.0,
+  "avg_cost": 53.95002,
+  "mark": 36.855000000000004,
+  "bid": 36.82,
+  "ask": 36.89,
+  "last": 36.88,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "COHR",
+  "exchange": "NYSE",
+  "position": 9.0,
+  "avg_cost": 362.9977778,
+  "mark": 289.255,
+  "bid": 289.08,
+  "ask": 289.43,
+  "last": 289.43,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "COIW",
+  "exchange": "BATS",
+  "position": 10.0,
+  "avg_cost": 31.96796,
+  "mark": 9.69,
+  "bid": 9.69,
+  "ask": 9.69,
+  "last": 9.69,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "CONY",
+  "exchange": "ARCA",
+  "position": 10.0,
+  "avg_cost": 55.11297,
+  "mark": 21.455,
+  "bid": 21.45,
+  "ask": 21.46,
+  "last": 21.46,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "CRML",
+  "exchange": "NASDAQ",
+  "position": 75.0,
+  "avg_cost": 15.61333335,
+  "mark": 7.1125,
+  "bid": 7.1,
+  "ask": 7.125,
+  "last": 7.11,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "CRWD",
+  "exchange": "NASDAQ",
+  "position": 1.0,
+  "avg_cost": 211.0,
+  "mark": 192.04500000000002,
+  "bid": 191.74,
+  "ask": 192.35,
+  "last": 191.95,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "CRWV",
+  "exchange": "NASDAQ",
+  "position": 48.0,
+  "avg_cost": 118.73670415,
+  "mark": 87.91,
+  "bid": 87.76,
+  "ask": 88.06,
+  "last": 87.81,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "DASH",
+  "exchange": "NASDAQ",
+  "position": 10.0,
+  "avg_cost": 273.10002,
+  "mark": 223.51999999999998,
+  "bid": 223.45,
+  "ask": 223.59,
+  "last": 223.54,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "DELL",
+  "exchange": "NYSE",
+  "position": 1.0,
+  "avg_cost": 461.0,
+  "mark": 441.49,
+  "bid": 441.0,
+  "ask": 441.98,
+  "last": 441.98,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "DPRO",
+  "exchange": "NASDAQ",
+  "position": 150.0,
+  "avg_cost": 11.41175865,
+  "mark": 4.485,
+  "bid": 4.48,
+  "ask": 4.49,
+  "last": 4.49,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "DUOL",
+  "exchange": "NASDAQ",
+  "position": 3.0,
+  "avg_cost": 419.33336665,
+  "mark": 146.015,
+  "bid": 145.87,
+  "ask": 146.16,
+  "last": 146.15,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "FIG",
+  "exchange": "NYSE",
+  "position": 10.0,
+  "avg_cost": 68.10002,
+  "mark": 27.07,
+  "bid": 27.03,
+  "ask": 27.11,
+  "last": 27.1,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "FN",
+  "exchange": "NYSE",
+  "position": 2.0,
+  "avg_cost": 546.0,
+  "mark": 436.51,
+  "bid": 436.0,
+  "ask": 437.02,
+  "last": 436.71,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "GDXU",
+  "exchange": "ARCA",
+  "position": 10.0,
+  "avg_cost": 507.934,
+  "mark": 185.225,
+  "bid": 185.04,
+  "ask": 185.41,
+  "last": 185.16,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "GEV",
+  "exchange": "NYSE",
+  "position": 5.0,
+  "avg_cost": 1007.52,
+  "mark": 956.125,
+  "bid": 955.39,
+  "ask": 956.86,
+  "last": 956.86,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "GOGO",
+  "exchange": "NASDAQ",
+  "position": 25.0,
+  "avg_cost": 12.930024,
+  "mark": 2.6775,
+  "bid": 2.67,
+  "ask": 2.685,
+  "last": 2.675,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "GOOG",
+  "exchange": "NASDAQ",
+  "position": 5.0,
+  "avg_cost": 386.7,
+  "mark": 341.875,
+  "bid": 341.57,
+  "ask": 342.18,
+  "last": 341.84,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "GPTY",
+  "exchange": "ARCA",
+  "position": 50.0,
+  "avg_cost": 47.540004,
+  "mark": 42.1,
+  "bid": 42.1,
+  "ask": 42.1,
+  "last": 42.1,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "HIVE",
+  "exchange": "NASDAQ",
+  "position": 220.0,
+  "avg_cost": 6.71171955,
+  "mark": 3.02,
+  "bid": 3.015,
+  "ask": 3.025,
+  "last": 3.025,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "HPE",
+  "exchange": "NYSE",
+  "position": 20.0,
+  "avg_cost": 59.525005,
+  "mark": 53.480000000000004,
+  "bid": 53.43,
+  "ask": 53.53,
+  "last": 53.44,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "IBIT",
+  "exchange": "NASDAQ",
+  "position": 1.0,
+  "avg_cost": 44.440003,
+  "mark": 43.644999999999996,
+  "bid": 43.63,
+  "ask": 43.66,
+  "last": 43.65,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "INOD",
+  "exchange": "NASDAQ",
+  "position": 2.0,
+  "avg_cost": 62.5,
+  "mark": 64.10499999999999,
+  "bid": 64.05,
+  "ask": 64.16,
+  "last": 64.155,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "INTC",
+  "exchange": "NASDAQ",
+  "position": 60.0,
+  "avg_cost": 118.80000335,
+  "mark": 90.055,
+  "bid": 89.98,
+  "ask": 90.13,
+  "last": 90.06,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "IONQ",
+  "exchange": "NYSE",
+  "position": 5.0,
+  "avg_cost": 63.57,
+  "mark": 44.870000000000005,
+  "bid": 44.82,
+  "ask": 44.92,
+  "last": 44.85,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "IREN",
+  "exchange": "NASDAQ",
+  "position": 10.0,
+  "avg_cost": 66.2,
+  "mark": 41.875,
+  "bid": 41.835,
+  "ask": 41.915,
+  "last": 41.875,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "LASR",
+  "exchange": "NASDAQ",
+  "position": 5.0,
+  "avg_cost": 57.2,
+  "mark": 47.455,
+  "bid": 47.41,
+  "ask": 47.5,
+  "last": 47.45,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "LITE",
+  "exchange": "NASDAQ",
+  "position": 4.0,
+  "avg_cost": 954.980375,
+  "mark": 867.4200000000001,
+  "bid": 866.48,
+  "ask": 868.36,
+  "last": 866.98,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "LNAI",
+  "exchange": "NASDAQ",
+  "position": 8.0,
+  "avg_cost": 9.6992375,
+  "mark": 2.1550000000000002,
+  "bid": 2.15,
+  "ask": 2.16,
+  "last": 2.16,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "LPTH",
+  "exchange": "NASDAQ",
+  "position": 100.0,
+  "avg_cost": 15.042094,
+  "mark": 14.435,
+  "bid": 14.4,
+  "ask": 14.47,
+  "last": 14.44,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "LRCX",
+  "exchange": "NASDAQ",
+  "position": 6.0,
+  "avg_cost": 391.5,
+  "mark": 313.91999999999996,
+  "bid": 313.64,
+  "ask": 314.2,
+  "last": 314.15,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "LRN",
+  "exchange": "NYSE",
+  "position": 5.0,
+  "avg_cost": 139.31002,
+  "mark": 84.29,
+  "bid": 84.18,
+  "ask": 84.4,
+  "last": 84.39,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "MDA",
+  "exchange": "NYSE",
+  "position": 15.0,
+  "avg_cost": 39.3,
+  "mark": 30.91,
+  "bid": 30.87,
+  "ask": 30.95,
+  "last": 30.92,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "MELI",
+  "exchange": "NASDAQ",
+  "position": 2.0,
+  "avg_cost": 1977.99,
+  "mark": 1922.955,
+  "bid": 1921.83,
+  "ask": 1924.08,
+  "last": 1922.95,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "META",
+  "exchange": "NASDAQ",
+  "position": 1.0,
+  "avg_cost": 546.0,
+  "mark": 549.855,
+  "bid": 549.54,
+  "ask": 550.17,
+  "last": 549.91,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U20784496",
+  "symbol": "META",
+  "exchange": "NASDAQ",
+  "position": 3.0,
+  "avg_cost": 680.03,
+  "mark": 549.855,
+  "bid": 549.54,
+  "ask": 550.17,
+  "last": 549.91,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "METC",
+  "exchange": "NASDAQ",
+  "position": 70.0,
+  "avg_cost": 22.90000145,
+  "mark": 11.915,
+  "bid": 11.89,
+  "ask": 11.94,
+  "last": 11.89,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "MP",
+  "exchange": "NYSE",
+  "position": 35.0,
+  "avg_cost": 94.7685943,
+  "mark": 60.035,
+  "bid": 59.98,
+  "ask": 60.09,
+  "last": 60.09,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "MPU",
+  "exchange": "AMEX",
+  "position": 100.0,
+  "avg_cost": 0.438292,
+  "mark": 0.2141,
+  "bid": 0.2141,
+  "ask": 0.2141,
+  "last": 0.2141,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "MREO",
+  "exchange": "NASDAQ",
+  "position": 100.0,
+  "avg_cost": 0.4343,
+  "mark": 0.29264999999999997,
+  "bid": 0.2903,
+  "ask": 0.295,
+  "last": 0.2903,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "MRVL",
+  "exchange": "NASDAQ",
+  "position": 20.0,
+  "avg_cost": 278.400005,
+  "mark": 237.16,
+  "bid": 236.85,
+  "ask": 237.47,
+  "last": 237.13,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "MSFT",
+  "exchange": "NASDAQ",
+  "position": 10.0,
+  "avg_cost": 532.12002,
+  "mark": 483.49,
+  "bid": 483.16,
+  "ask": 483.82,
+  "last": 483.34,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "MST",
+  "exchange": "NASDAQ",
+  "position": 10.7857,
+  "avg_cost": 21.14274665,
+  "mark": 11.12,
+  "bid": 11.12,
+  "ask": 11.12,
+  "last": 11.12,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "MSTR",
+  "exchange": "NASDAQ",
+  "position": 6.0,
+  "avg_cost": 379.41668385,
+  "mark": 119.25,
+  "bid": 119.14,
+  "ask": 119.36,
+  "last": 119.24,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "MU",
+  "exchange": "NASDAQ",
+  "position": 32.0,
+  "avg_cost": 1022.5925375,
+  "mark": 966.845,
+  "bid": 965.29,
+  "ask": 968.4,
+  "last": 966.49,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U20784496",
+  "symbol": "MU",
+  "exchange": "NASDAQ",
+  "position": 3.0,
+  "avg_cost": 673.66666665,
+  "mark": 966.845,
+  "bid": 965.29,
+  "ask": 968.4,
+  "last": 966.49,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "MXL",
+  "exchange": "NASDAQ",
+  "position": 5.0,
+  "avg_cost": 112.60086,
+  "mark": 66.62,
+  "bid": 66.55,
+  "ask": 66.69,
+  "last": 66.61,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "NET",
+  "exchange": "NYSE",
+  "position": 6.0,
+  "avg_cost": 322.0,
+  "mark": 293.095,
+  "bid": 292.95,
+  "ask": 293.24,
+  "last": 293.0,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "NFLX",
+  "exchange": "NASDAQ",
+  "position": 10.0,
+  "avg_cost": 103.95,
+  "mark": 79.61500000000001,
+  "bid": 79.59,
+  "ask": 79.64,
+  "last": 79.61,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "NNE",
+  "exchange": "NASDAQ",
+  "position": 15.0,
+  "avg_cost": 51.08668665,
+  "mark": 18.86,
+  "bid": 18.83,
+  "ask": 18.89,
+  "last": 18.83,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "NOW",
+  "exchange": "NYSE",
+  "position": 8.0,
+  "avg_cost": 129.375,
+  "mark": 128.64499999999998,
+  "bid": 128.47,
+  "ask": 128.82,
+  "last": 128.5,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "NVDA",
+  "exchange": "NASDAQ",
+  "position": 82.0,
+  "avg_cost": 215.586639,
+  "mark": 214.755,
+  "bid": 214.56,
+  "ask": 214.95,
+  "last": 214.76,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "NXE",
+  "exchange": "NYSE",
+  "position": 10.0,
+  "avg_cost": 10.8,
+  "mark": 10.84,
+  "bid": 10.83,
+  "ask": 10.85,
+  "last": 10.85,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "ONDS",
+  "exchange": "NASDAQ",
+  "position": 15.0,
+  "avg_cost": 12.83930665,
+  "mark": 8.7025,
+  "bid": 8.69,
+  "ask": 8.715,
+  "last": 8.705,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "ONTO",
+  "exchange": "NYSE",
+  "position": 1.0,
+  "avg_cost": 314.0,
+  "mark": 293.17499999999995,
+  "bid": 293.01,
+  "ask": 293.34,
+  "last": 293.19,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "OPFI",
+  "exchange": "NYSE",
+  "position": 25.0,
+  "avg_cost": 13.020024,
+  "mark": 6.9925,
+  "bid": 6.97,
+  "ask": 7.015,
+  "last": 6.97,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "OPTX",
+  "exchange": "NASDAQ",
+  "position": 20.0,
+  "avg_cost": 8.585005,
+  "mark": 8.535,
+  "bid": 8.53,
+  "ask": 8.54,
+  "last": 8.53,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "ORCL",
+  "exchange": "NYSE",
+  "position": 10.0,
+  "avg_cost": 243.10001,
+  "mark": 146.56,
+  "bid": 146.42,
+  "ask": 146.7,
+  "last": 146.47,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "PANW",
+  "exchange": "NASDAQ",
+  "position": 2.0,
+  "avg_cost": 362.5000015,
+  "mark": 357.85,
+  "bid": 357.52,
+  "ask": 358.18,
+  "last": 357.85,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "PATH",
+  "exchange": "NYSE",
+  "position": -25.0,
+  "avg_cost": 14.959492,
+  "mark": 16.37,
+  "bid": 16.35,
+  "ask": 16.39,
+  "last": 16.39,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "PDSB",
+  "exchange": "NASDAQ",
+  "position": -1.0,
+  "avg_cost": 1.1383,
+  "mark": 0.2156,
+  "bid": 0.2156,
+  "ask": 0.2156,
+  "last": 0.2156,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "PLTR",
+  "exchange": "NASDAQ",
+  "position": 110.0,
+  "avg_cost": 205.34236785,
+  "mark": 179.89999999999998,
+  "bid": 179.85,
+  "ask": 179.95,
+  "last": 179.94,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "PLTW",
+  "exchange": "BATS",
+  "position": 50.0,
+  "avg_cost": 37.953382,
+  "mark": 25.375,
+  "bid": 25.37,
+  "ask": 25.38,
+  "last": 25.38,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "PONY",
+  "exchange": "NASDAQ",
+  "position": 50.0,
+  "avg_cost": 24.154128,
+  "mark": 8.235,
+  "bid": 8.22,
+  "ask": 8.25,
+  "last": 8.22,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "PPTA",
+  "exchange": "NASDAQ",
+  "position": -1.0,
+  "avg_cost": 23.0267,
+  "mark": 25.72,
+  "bid": 25.7,
+  "ask": 25.74,
+  "last": 25.7,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "PYPL",
+  "exchange": "NASDAQ",
+  "position": 10.0,
+  "avg_cost": 67.70002,
+  "mark": 61.575,
+  "bid": 61.55,
+  "ask": 61.6,
+  "last": 61.57,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "QBTS",
+  "exchange": "NASDAQ",
+  "position": 25.0,
+  "avg_cost": 29.44,
+  "mark": 20.4,
+  "bid": 20.38,
+  "ask": 20.42,
+  "last": 20.39,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "QCOM",
+  "exchange": "NASDAQ",
+  "position": 6.0,
+  "avg_cost": 204.79481665,
+  "mark": 160.815,
+  "bid": 160.68,
+  "ask": 160.95,
+  "last": 160.76,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "QDTE",
+  "exchange": "BATS",
+  "position": 50.0,
+  "avg_cost": 35.920022,
+  "mark": 28.925,
+  "bid": 28.92,
+  "ask": 28.93,
+  "last": 28.93,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "QQQ",
+  "exchange": "NASDAQ",
+  "position": 1.0,
+  "avg_cost": 681.0,
+  "mark": 713.37,
+  "bid": 712.91,
+  "ask": 713.83,
+  "last": 713.41,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "QS",
+  "exchange": "NASDAQ",
+  "position": 70.0,
+  "avg_cost": 14.62587285,
+  "mark": 5.984999999999999,
+  "bid": 5.97,
+  "ask": 6.0,
+  "last": 5.98,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "QSI",
+  "exchange": "NASDAQ",
+  "position": 30.0,
+  "avg_cost": 1.11100335,
+  "mark": 0.83735,
+  "bid": 0.83,
+  "ask": 0.8447,
+  "last": 0.84,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "QUBT",
+  "exchange": "NASDAQ",
+  "position": 25.0,
+  "avg_cost": 10.840004,
+  "mark": 8.9175,
+  "bid": 8.905,
+  "ask": 8.93,
+  "last": 8.92,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "RGTI",
+  "exchange": "NASDAQ",
+  "position": 50.0,
+  "avg_cost": 50.720022,
+  "mark": 17.8925,
+  "bid": 17.885,
+  "ask": 17.9,
+  "last": 17.895,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "RKLB",
+  "exchange": "NASDAQ",
+  "position": 8.0,
+  "avg_cost": 136.625,
+  "mark": 72.58,
+  "bid": 72.52,
+  "ask": 72.64,
+  "last": 72.59,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "SAIL",
+  "exchange": "NASDAQ",
+  "position": 10.0,
+  "avg_cost": 19.6,
+  "mark": 18.66,
+  "bid": 18.63,
+  "ask": 18.69,
+  "last": 18.64,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "SE",
+  "exchange": "NYSE",
+  "position": 10.0,
+  "avg_cost": 160.10002,
+  "mark": 117.605,
+  "bid": 117.45,
+  "ask": 117.76,
+  "last": 117.5,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "SIMO",
+  "exchange": "NASDAQ",
+  "position": 5.0,
+  "avg_cost": 262.4,
+  "mark": 258.275,
+  "bid": 258.15,
+  "ask": 258.4,
+  "last": 258.33,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "SKHY",
+  "exchange": "NASDAQ",
+  "position": 3.0,
+  "avg_cost": 182.33333335,
+  "mark": 163.54500000000002,
+  "bid": 163.26,
+  "ask": 163.83,
+  "last": 163.43,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "SLV",
+  "exchange": "ARCA",
+  "position": 15.0,
+  "avg_cost": 77.53,
+  "mark": 62.72,
+  "bid": 62.7,
+  "ask": 62.74,
+  "last": 62.72,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "SMCI",
+  "exchange": "NASDAQ",
+  "position": 310.0,
+  "avg_cost": 104.9647042,
+  "mark": 37.235,
+  "bid": 37.2,
+  "ask": 37.27,
+  "last": 37.25,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "SNDK",
+  "exchange": "NASDAQ",
+  "position": 13.0,
+  "avg_cost": 1986.6676923,
+  "mark": 1597.285,
+  "bid": 1595.92,
+  "ask": 1598.65,
+  "last": 1597.15,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "SOFI",
+  "exchange": "NASDAQ",
+  "position": 25.0,
+  "avg_cost": 24.54,
+  "mark": 18.92,
+  "bid": 18.9,
+  "ask": 18.94,
+  "last": 18.91,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "SPOT",
+  "exchange": "NYSE",
+  "position": 1.0,
+  "avg_cost": 551.0,
+  "mark": 533.2,
+  "bid": 532.63,
+  "ask": 533.77,
+  "last": 533.39,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "STX",
+  "exchange": "NASDAQ",
+  "position": 3.0,
+  "avg_cost": 994.56,
+  "mark": 850.605,
+  "bid": 849.88,
+  "ask": 851.33,
+  "last": 850.41,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "TASK",
+  "exchange": "NASDAQ",
+  "position": 20.0,
+  "avg_cost": 13.55002,
+  "mark": 8.0,
+  "bid": 7.99,
+  "ask": 8.01,
+  "last": 8.01,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "TE",
+  "exchange": "NYSE",
+  "position": 10.0,
+  "avg_cost": 4.848,
+  "mark": 4.4325,
+  "bid": 4.42,
+  "ask": 4.445,
+  "last": 4.43,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "TER",
+  "exchange": "NASDAQ",
+  "position": 3.0,
+  "avg_cost": 411.0,
+  "mark": 375.78,
+  "bid": 375.45,
+  "ask": 376.11,
+  "last": 375.78,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "TKO",
+  "exchange": "NYSE",
+  "position": 7.0,
+  "avg_cost": 218.14285715,
+  "mark": 193.02,
+  "bid": 192.83,
+  "ask": 193.21,
+  "last": 193.07,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "TLN",
+  "exchange": "NASDAQ",
+  "position": 2.0,
+  "avg_cost": 320.5,
+  "mark": 314.365,
+  "bid": 314.05,
+  "ask": 314.68,
+  "last": 314.27,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "TLRY",
+  "exchange": "NASDAQ",
+  "position": 25.0,
+  "avg_cost": 14.856932,
+  "mark": 0.0,
+  "bid": 0.0,
+  "ask": 0.0,
+  "last": 0.0,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "TMQ",
+  "exchange": "TSE",
+  "position": 150.0,
+  "avg_cost": 11.33666665,
+  "mark": 0.0,
+  "bid": 0.0,
+  "ask": 0.0,
+  "last": 0.0,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "TTD",
+  "exchange": "NASDAQ",
+  "position": 5.0,
+  "avg_cost": 65.20002,
+  "mark": 13.18,
+  "bid": 13.16,
+  "ask": 13.2,
+  "last": 13.17,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "TXN",
+  "exchange": "NASDAQ",
+  "position": 1.0,
+  "avg_cost": 263.000003,
+  "mark": 264.35,
+  "bid": 264.07,
+  "ask": 264.63,
+  "last": 264.25,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "U",
+  "exchange": "NYSE",
+  "position": 15.0,
+  "avg_cost": 47.56666665,
+  "mark": 46.89,
+  "bid": 46.84,
+  "ask": 46.94,
+  "last": 46.91,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "UBER",
+  "exchange": "NYSE",
+  "position": 25.0,
+  "avg_cost": 98.530024,
+  "mark": 78.81,
+  "bid": 78.75,
+  "ask": 78.87,
+  "last": 78.8,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "USAR",
+  "exchange": "NASDAQ",
+  "position": 15.0,
+  "avg_cost": 26.06666665,
+  "mark": 19.265,
+  "bid": 19.24,
+  "ask": 19.29,
+  "last": 19.25,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "UUUU",
+  "exchange": "AMEX",
+  "position": 25.0,
+  "avg_cost": 25.920232,
+  "mark": 15.145,
+  "bid": 15.13,
+  "ask": 15.16,
+  "last": 15.13,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "VEEV",
+  "exchange": "NYSE",
+  "position": 5.0,
+  "avg_cost": 254.20002,
+  "mark": 248.11,
+  "bid": 247.91,
+  "ask": 248.31,
+  "last": 247.91,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "VGT",
+  "exchange": "ARCA",
+  "position": 5.0,
+  "avg_cost": 120.2,
+  "mark": 118.44999999999999,
+  "bid": 118.38,
+  "ask": 118.52,
+  "last": 118.42,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "VIOT",
+  "exchange": "NASDAQ",
+  "position": 100.0,
+  "avg_cost": 1.36,
+  "mark": 0.7631,
+  "bid": 0.7631,
+  "ask": 0.7631,
+  "last": 0.7631,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "VIVO",
+  "exchange": "NASDAQ",
+  "position": 20.0,
+  "avg_cost": 5.504505,
+  "mark": 4.35,
+  "bid": 4.34,
+  "ask": 4.36,
+  "last": 4.36,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "VRT",
+  "exchange": "NYSE",
+  "position": 6.0,
+  "avg_cost": 322.59783335,
+  "mark": 262.245,
+  "bid": 261.89,
+  "ask": 262.6,
+  "last": 261.97,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "WDC",
+  "exchange": "NASDAQ",
+  "position": 10.0,
+  "avg_cost": 663.691,
+  "mark": 459.375,
+  "bid": 459.0,
+  "ask": 459.75,
+  "last": 459.3,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "WFC",
+  "exchange": "NYSE",
+  "position": 10.0,
+  "avg_cost": 95.1,
+  "mark": 83.855,
+  "bid": 83.81,
+  "ask": 83.9,
+  "last": 83.83,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "WFRD",
+  "exchange": "NASDAQ",
+  "position": 5.0,
+  "avg_cost": 106.0,
+  "mark": 90.525,
+  "bid": 90.45,
+  "ask": 90.6,
+  "last": 90.51,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "WMT",
+  "exchange": "NASDAQ",
+  "position": 5.0,
+  "avg_cost": 127.5,
+  "mark": 103.56,
+  "bid": 103.41,
+  "ask": 103.71,
+  "last": 103.71,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "WOLF",
+  "exchange": "NYSE",
+  "position": 0.392,
+  "avg_cost": 122.59183675,
+  "mark": 25.79,
+  "bid": 25.72,
+  "ask": 25.86,
+  "last": 25.77,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "XDTE",
+  "exchange": "BATS",
+  "position": 30.0,
+  "avg_cost": 43.51015665,
+  "mark": 38.835,
+  "bid": 38.83,
+  "ask": 38.84,
+  "last": 38.83,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "YMAG",
+  "exchange": "ARCA",
+  "position": 150.0,
+  "avg_cost": 13.77186935,
+  "mark": 11.15,
+  "bid": 11.15,
+  "ask": 11.15,
+  "last": 11.15,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "YMAX",
+  "exchange": "ARCA",
+  "position": 150.0,
+  "avg_cost": 11.86495935,
+  "mark": 7.675,
+  "bid": 7.67,
+  "ask": 7.68,
+  "last": 7.68,
+  "time": null,
+  "market_data_type": null
+}
+{
+  "account": "U8546916",
+  "symbol": "ZENVF",
+  "exchange": "PINK",
+  "position": 100.0,
+  "avg_cost": 1.810027,
+  "mark": 0.0,
+  "bid": 0.0,
+  "ask": 0.0,
+  "last": 0.0,
+  "time": null,
+  "market_data_type": null
+}
