@@ -608,18 +608,43 @@ def calculate_summary_lot_age: # test 28
 #=======================================================================
 def close_position($live):
 
-  . as $records
+  debug(">>> close_position() EXECUTING")
+  | . as $records
 
   | $live
   | map({(.symbol): .position})
   | add as $positions
 
   | $records
+  | debug(
+      ">>> LIVE POSITION MAP: "
+      + ($positions | tojson)
+    )
+
+  | (map(.symbol) | unique) as $record_symbols
+  | ($record_symbols
+      | map(select(($positions[.] // 0) == 0))
+    ) as $closed_symbols
+
+  | debug(
+      ">>> CLOSE CONFIRMED: "
+      + ($closed_symbols | join(", "))
+    )
+
   | map(
       select(
-        ($positions[.symbol] // null) != 0
+        ($positions[.symbol] // 0) != 0
       )
+    ) as $remaining
+
+  | debug(
+      ">>> close_position() RECORDS: "
+      + ($records | length | tostring)
+      + " -> "
+      + ($remaining | length | tostring)
     )
+
+  | $remaining
 
 ;
 
