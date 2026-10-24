@@ -196,7 +196,3 @@ pli_no_update plinu :
 	echo "# Processed lot inventory (no updates) ...";   \
 	:
 
-# Simple bundle-integration smoke test.
-.PHONY : hello_world
-hello_world:
-	@echo "Hello World"
