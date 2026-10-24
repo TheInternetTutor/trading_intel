@@ -341,27 +341,20 @@ function toggle_debug_environment()
 }
 
 #-----------------------------------------------------------------------
-# Apply the fixed incoming Git bundle to the independent test project.
-# The bundle's commit message is reused for the test-project commit; its
-# synthetic history is fetched for inspection, not merged into test history.
-function apply_bundle_to_test() {
-  local dir_root dir_workspace dir_test dir_bundle fl_bundle fl_hash
-  local fl_hash_marker fl_message tmp_message commit_id rel_file fl_file
-  local old_hash=''
+# Apply the fixed incoming Git bundle to this repository's root.
+# Source files are copied from the bundle commit, and its message is used
+# for a local commit. The bundle's synthetic ancestry is not merged.
+function apply_bundle() {
+  local dir_root dir_extract fl_bundle fl_hash fl_hash_marker old_hash
+  local fl_message tmp_message commit_id fl_file rel_file
+  old_hash=''
 
   dir_root=$(git rev-parse --show-toplevel) || return 1
-  dir_workspace="${dir_root}/z_test"
-  dir_test="${dir_workspace}/test"
-  dir_bundle="${dir_workspace}/bundle"
-  fl_bundle="${dir_workspace}/trading_intel.bundle"
-  fl_hash_marker="${dir_workspace}/hash.txt"
+  fl_bundle="${dir_root}/trading_intel.bundle"
+  fl_hash_marker="${dir_root}/.trading_intel.bundle.sha256"
 
   if [[ ! -f "${fl_bundle}" ]]; then
     echo "abtt: bundle not found: ${fl_bundle}" >&2
-    return 1
-  fi
-  if [[ ! -d "${dir_test}/.git" ]]; then
-    echo "abtt: test project is not a Git repository: ${dir_test}" >&2
     return 1
   fi
 
@@ -375,59 +368,66 @@ function apply_bundle_to_test() {
     return 0
   fi
 
-  # Avoid overwriting local edits to tracked test sources.
-  if [[ -n "$(git -C "${dir_test}" status --porcelain --untracked-files=no)" ]]; then
-    echo "abtt: test project has uncommitted tracked changes; commit or revert them first." >&2
+  if ! git -C "${dir_root}" diff --cached --quiet; then
+    echo "abtt: staged changes exist; commit or unstage them before applying the bundle." >&2
     return 1
   fi
 
-  # Verify and fetch the bundle into the test repository so its commit
-  # object and original message are available without creating a clone.
-  if ! git -C "${dir_test}" bundle verify "${fl_bundle}" >/dev/null; then
+  if ! git -C "${dir_root}" bundle verify "${fl_bundle}" >/dev/null; then
     echo "abtt: bundle verification failed." >&2
     return 1
   fi
-  if ! git -C "${dir_test}" fetch --quiet "${fl_bundle}" HEAD; then
+  if ! git -C "${dir_root}" fetch --quiet "${fl_bundle}" HEAD; then
     echo "abtt: could not import bundle commit." >&2
     return 1
   fi
-  commit_id=$(git -C "${dir_test}" rev-parse 'FETCH_HEAD^{commit}') || return 1
-  fl_message="$(git -C "${dir_test}" show -s --format=%B "${commit_id}")" || return 1
+  commit_id=$(git -C "${dir_root}" rev-parse 'FETCH_HEAD^{commit}') || return 1
+  fl_message=$(git -C "${dir_root}" show -s --format=%B "${commit_id}") || return 1
   if [[ -z "${fl_message//[[:space:]]/}" ]]; then
     fl_message='Apply incoming source bundle'
   fi
 
-  mkdir -p "${dir_bundle}" || return 1
-  find "${dir_bundle}" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} + || return 1
-  if ! git -C "${dir_test}" archive "${commit_id}" | tar -x -C "${dir_bundle}"; then
-    echo "abtt: could not expand bundle into ${dir_bundle}." >&2
+  dir_extract=$(mktemp -d "${dir_root}/.bundle_extract.XXXXXX") || return 1
+  if ! git -C "${dir_root}" archive "${commit_id}" | tar -x -C "${dir_extract}"; then
+    rm -rf -- "${dir_extract}"
+    echo "abtt: could not expand bundle commit." >&2
     return 1
   fi
 
-  # Copy only files supplied by the bundle; unrelated test files remain.
+  # Copy the files supplied by the bundle into the project root.
   while IFS= read -r -d '' fl_file; do
-    rel_file=${fl_file#"${dir_bundle}/"}
-    mkdir -p "${dir_test}/$(dirname -- "${rel_file}")" || return 1
-    cp -p -- "${fl_file}" "${dir_test}/${rel_file}" || return 1
-    git -C "${dir_test}" add -- "${rel_file}" || return 1
-  done < <(find "${dir_bundle}" -type f -print0)
+    rel_file=${fl_file#"${dir_extract}/"}
+    mkdir -p "${dir_root}/$(dirname -- "${rel_file}")" || {
+      rm -rf -- "${dir_extract}"
+      return 1
+    }
+    cp -p -- "${fl_file}" "${dir_root}/${rel_file}" || {
+      rm -rf -- "${dir_extract}"
+      return 1
+    }
+    git -C "${dir_root}" add -- "${rel_file}" || {
+      rm -rf -- "${dir_extract}"
+      return 1
+    }
+  done < <(find "${dir_extract}" -type f -print0)
+  rm -rf -- "${dir_extract}"
 
-  if ! git -C "${dir_test}" diff --cached --quiet; then
+  if ! git -C "${dir_root}" diff --cached --quiet; then
     tmp_message=$(mktemp) || return 1
     printf '%s\n' "${fl_message}" > "${tmp_message}"
-    if ! git -C "${dir_test}" commit --file="${tmp_message}"; then
+    if ! git -C "${dir_root}" commit --file="${tmp_message}"; then
       rm -f -- "${tmp_message}"
-      echo "abtt: test commit failed; bundle marker was not updated." >&2
+      echo "abtt: commit failed; bundle marker was not updated." >&2
       return 1
     fi
     rm -f -- "${tmp_message}"
   else
-    echo "abtt: source files already match this bundle; no new test commit needed."
+    echo "abtt: source files already match this bundle; no new commit needed."
   fi
 
   printf '%s\n' "${fl_hash}" > "${fl_hash_marker}.tmp" || return 1
   mv -f -- "${fl_hash_marker}.tmp" "${fl_hash_marker}" || return 1
-  echo "abtt: applied ${commit_id:0:12}; test project updated."
+  echo "abtt: applied ${commit_id:0:12}; project sources updated."
 }
 
 #-----------------------------------------------------------------------
