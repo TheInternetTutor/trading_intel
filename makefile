@@ -9,7 +9,9 @@
 
 export
 
-SHELL := /bin/bash
+# Note to AI: based on the environment (user-local or ai-virtual) we 
+# might need to conditionally assign (or not) the value of SHELL.
+SHELL := /bin/bash # **commented** in user-local environment???
 
 # declare -- MAKEFLAGS="-I /finanzas/ibkr/trading_intel/mk"
 # ${shell MAKEFLAGS="-I /finanzas/ibkr/trading_intel/mk"}
@@ -178,11 +180,11 @@ toggle_debug td :
 #=======================================================================
 #h,### abtt,| apply_bundle_to_test,: apply incoming bundle to z_test/test
 .PHONY : apply_bundle_to_test abtt
-apply_bundle_to_test abtt : sh/lib.sh
+apply_bundle_to_test abtt : $(sh__librry)
 apply_bundle_to_test abtt :
 	echo "# Applying bundle to test project ...";  \
-	source ./sh/lib.sh;                            \
-	apply_bundle;                                 \
+	source $(r_sh__librry);                        \
+	apply_bundle;                          				 \
 	:
 
 #=======================================================================
