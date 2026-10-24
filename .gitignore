@@ -129,6 +129,7 @@ prompts*
 *.diff
 
 # Incoming Git bundle and its applied-content fingerprint
-/trading_intel.bundle
-/.trading_intel.bundle.sha256
-/.trading_intel.bundle.sha256.tmp
+trading_intel.bundle
+trading_intel_user.bundle
+.trading_intel.bundle.sha256
+.trading_intel.bundle.sha256.tmp
