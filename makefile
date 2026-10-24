@@ -9,7 +9,7 @@
 
 export
 
-# SHELL := /bin/bash
+SHELL := /bin/bash
 
 # declare -- MAKEFLAGS="-I /finanzas/ibkr/trading_intel/mk"
 # ${shell MAKEFLAGS="-I /finanzas/ibkr/trading_intel/mk"}
@@ -178,11 +178,11 @@ toggle_debug td :
 #=======================================================================
 #h,### abtt,| apply_bundle_to_test,: apply incoming bundle to z_test/test
 .PHONY : apply_bundle_to_test abtt
-apply_bundle_to_test abtt : $(sh__librry)
+apply_bundle_to_test abtt : sh/lib.sh
 apply_bundle_to_test abtt :
 	echo "# Applying bundle to test project ...";  \
-	source $(r_sh__librry);                        \
-	apply_bundle_to_test;                          \
+	source ./sh/lib.sh;                            \
+	apply_bundle;                                 \
 	:
 
 #=======================================================================
@@ -193,3 +193,8 @@ pli_no_update plinu : process_lot_inventory
 pli_no_update plinu :
 	echo "# Processed lot inventory (no updates) ...";   \
 	:
+
+# Simple bundle-integration smoke test.
+.PHONY : hello_world
+hello_world:
+	@echo "Hello World"
