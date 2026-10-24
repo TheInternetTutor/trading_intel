@@ -196,3 +196,20 @@ pli_no_update plinu :
 	echo "# Processed lot inventory (no updates) ...";   \
 	:
 
+#=======================================================================
+#h,### ugu,| unset_git_user,: Unset git's local user config entries
+.PHONY : unset_git_user ugu
+unset_git_user ugu :
+	echo "# Current git config ...";               \
+	git var GIT_AUTHOR_IDENT;                      \
+	git var GIT_COMMITTER_IDENT;                   \
+	git config --local --unset-all user.name;      \
+	git config --local --unset-all user.email;     \
+	echo "# New git config ...";                   \
+	git var GIT_AUTHOR_IDENT;                      \
+	git var GIT_COMMITTER_IDENT;                   \
+	:
+# 	git config --local --list --show-origin;
+# 	git config --local --get user.name;
+# 	git config --local --get user.email;
+
