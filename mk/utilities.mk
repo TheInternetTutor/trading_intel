@@ -17,7 +17,7 @@ BEGIN {
 	short_command = \$$2;
 	long_command  = \$$3;
 	description   = \$$4;
-	printf \"%-8s%-25s%-s\n\"   \
+	printf \"%-12s%-25s%-s\n\"  \
 	, short_command             \
 	, long_command              \
 	, description               \
@@ -38,9 +38,11 @@ help h : makefile mk/*.mk
 #:: infog | global_info                : global information
 .PHONY : infog
 infog :
+	echo "PWD:"; \
+	printf '  %s\n' $(PWD) ${subst /_,,${dir $(PWD)}_}; \
 	echo "VPATH:"; \
 	printf '  %s\n' $(VPATH); \
-	declare -p;
+	: declare -p;
 	:
 
 #=======================================================================
@@ -54,11 +56,10 @@ infog :
 info : infog infol
 
 #=======================================================================
-#h,### cf,| concatenate_files,: concatenate files in "files.manifest"
-#h,  $ make dfmf or $ make dfm > files.manifest,,
-#h,  $ dt.now.v; echo; make cf > repo/repo_${dtnowv}.md,,
-# This should be a separate modular rule common to include on each
-# makefile using the MAKEFLAGS mechanism
+ln72 := ----------
+ln72 := $(ln72)$(ln72)$(ln72)$(ln72)$(ln72)$(ln72)$(ln72)--
+ln72 := ${subst -,\#,$(ln72)}
+#.......................................................................
 define publish_repo_dt =
 ${strip $()
 {
@@ -68,24 +69,40 @@ ${strip $()
 }
 endef
 #.......................................................................
-ln72 := ----------
-ln72 := $(ln72)$(ln72)$(ln72)$(ln72)$(ln72)$(ln72)$(ln72)--
-ln72 := ${subst -,\#,$(ln72)}
+define concatenate_file_list =
+${strip $()
+for fl in $$(cat -); do {              \
+  echo $(ln72);                        \
+  echo "# FILE: $${fl##*/} ::";        \
+  echo $(ln72);                        \
+  cat $${fl};                          \
+} done                                 
+}
+endef
 #.......................................................................
-.DEFAULT : diplay_file_manifest dfm dfmf
+#h,### cf[f],| concatenate_files,: concatenate files in "files.manifest"
+#h,  $ make dfm > files.manifest --> make dfmf                 # 1),,
+#h,  $ dt.now.v; make cf > repo/repo_${dtnowv}.md --> make cff # 2),,
+# This should be a separate common modular rule to include on each
+# makefile using the MAKEFLAGS mechanism
 .DEFAULT : concatenate_files cf cff
 concatenate_files cf cff : files.manifest
-	date_time=$(date +"%y%m%d_%H%M%S");                      \
 	cat $(<)                                                 \
-	| for fl in $$(cat -); do {                              \
-		echo $(ln72);                                          \
-		# echo "# FILE: $${fl} ::";                            \
-		echo "# FILE: $${fl##*/} ::";                          \
-		echo $(ln72);                                          \
-		cat $${fl};                                            \
-	} done                                                   \
-	${call execute_on_rule, cff, | ${call publish_repo_dt}}  \
-	;
+	| ${call concatenate_file_list}                          \
+	${call execute_on_rule, cff, | ${call publish_repo_dt}}; \
+	:
+#.......................................................................
+#h,### gcf[f],| git_concatenate_files,: concatenate files from git ls-files
+#h,  $ dt.now.v; make gcf > repo/repo_${dtnowv}.md --> make gcff,,
+.DEFAULT : git_concatenate_files gcf gcff
+git_concatenate_files gcf gcff : 
+	git ls-files                                                   \
+	| ${call concatenate_file_list}                                \
+	${call execute_on_rule, gcff, | ${call publish_repo_dt}};      \
+	:
+#.......................................................................
+.DEFAULT : diplay_file_manifest dfm dfmf # to avoid warning/error
+# diplay_file_manifest shold be implemented in the project's makefile
 
 #=======================================================================
 #h,### rsos,| run_scripts_on_source,: run scripts on source

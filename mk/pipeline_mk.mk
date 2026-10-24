@@ -3,7 +3,7 @@ VPATH += :$(dir_jq)/pipeline_make
 
 #=======================================================================
 #x,### nli,| normalize_lot_inventory,: normalize open lots
-# c_jsn_blivep := $(dir_tidata)/$(jsn_blivep) # .../ibkr_live_positions.jsonl
+# c_jsn_blivep := $(dir_tidata)/$(jsn_blivep) # .../ibkr_position_inventory.jsonl
 c_jsn_rawlot := ${subst _raw,,$(c_csv_rawlot:csv=jsonl)} # .../ibkr_open_lots.jsonl
 r_csv_bolots  = ${filter %/$(csv_bolots), $(^)}
 r_awk_normlz  = ${filter %/$(awk_normlz), $(^)}
@@ -57,7 +57,7 @@ $(c_jsn_rawlot) ::                     \
 	, 030_                               \
 	};                                   \
 :
-# ibkr_live_positions_static.jsonl      \
+# ibkr_position_inventory_static.jsonl  \
 # 	, $(c_jsn_rawlot)                   \
 
 #=======================================================================
@@ -200,7 +200,7 @@ $(c_jsn_rawlot) ::                     \
 
 # Note:
 # At the moment, runtime ouput provide discription:
-# #  010 Normalizing: /finanzas/ibkr/trading_intel/data/ibkr_open_lots_raw.csv
+# #  010 Normalizing: /finanzas/ibkr/trading_intel/data/ibkr_lot_inventory.csv
 # ## 020 display_lots_canonically:
 # ## 030 update_mark_prices:
 # ## 040 consolidate_lots:

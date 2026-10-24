@@ -14,14 +14,14 @@ export
 # declare -- MAKEFLAGS="-I /finanzas/ibkr/trading_intel/mk"
 # ${shell MAKEFLAGS="-I /finanzas/ibkr/trading_intel/mk"}
 # ${shell MAKEFLAGS="-I $$(PWD)/mk"}
-MAKEFLAGS := -I /finanzas/ibkr/trading_intel/mk
+MAKEFLAGS := -I $(PWD)/mk
 
 VPATH := .
 
 #=======================================================================
 # Directories
 
-dir_root     := /finanzas/ibkr
+dir_root     := ${subst /_fin,,${dir $(PWD)}_fin}
 VPATH        += :$(dir_root)
 
 dir_ibdata   := $(dir_root)/data
@@ -47,10 +47,10 @@ sh__bquery   := ibkr_download_flex_query.sh
 
 awk_normlz   := ibkr_lots_normalize.awk
 
-csv_bolots   := ibkr_open_lots_raw.csv
+csv_bolots   := ibkr_lot_inventory.csv
 c_jsn_bolots := $(csv_bolots:csv=jsonl)
 
-py__blivep   := ibkr_live_positions.py
+py__blivep   := ibkr_position_inventory.py
 jsn_blivep   := $(py__blivep:py=jsonl)
 
 #=======================================================================
@@ -68,12 +68,12 @@ VPATH         := ${subst $(space),,$(VPATH)}
 include lib.mk
 include check_file_age.mk
 include check_refresh_period.mk
-include positions_live_pipeline.mk
-include positions_lots_pipeline.mk
+include position_inventory_pipeline.mk
+include lot_inventory_pipeline.mk
 include utilities.mk
 
 #=======================================================================
-#h,## flpp,| update,: fetch lots, positions, and then process them
+#h,### flpp,| update,: fetch lots, positions, and then process them
 .PHONY : fetch_lots_position_process flpp update
 fetch_lots_position_process flpp update : fetch_lot_inventory
 fetch_lots_position_process flpp update : fetch_position_inventory
@@ -82,7 +82,7 @@ fetch_lots_position_process flpp update :
 	echo DONE;
 
 #=======================================================================
-#h,## tt,| touch,: age live positions and lots
+#h,### tt,| touch,: age live positions and lots
 .PHONY : touch tt
 touch tt : age_live_positions age_lots_data
 
@@ -97,18 +97,20 @@ infol :
 	:
 
 #=======================================================================
-#h,## dfm,| display_file_manifest,: display project file manifest
+#h,### dfm,| display_file_manifest,: display project file manifest
 .DEFAULT : diplay_file_manifest dfm dfmf
 diplay_file_manifest dfm dfmf :
 	{                                                    \
 		find . -type f                                     \
 		| grep --invert-match                              \
+		--regexp=/.git/                                    \
 		--regexp=/@/                                       \
 		--regexp=ver                                       \
 		--regexp=/data/                                    \
 		--regexp=/repo/                                    \
 		--regexp=/notes/                                   \
 		--regexp=/pipeline_mk/                             \
+		--regexp=/borrar/                                  \
 		--regexp=/sh/clean_output.sh                       \
 		--regexp=/sh/refactor_identifiers.*                \
 		--regexp=/pipeline_mk.mk                           \
@@ -134,7 +136,7 @@ diplay_file_manifest dfm dfmf :
 	:
 
 #=======================================================================
-#h,## xyz,| xxx_yyy_zzz,: simple generic **template** rule
+#h,### xyz,| xxx_yyy_zzz,: simple generic **template** rule
 #.......................................................................
 ext_xxyyzz := xxx_yyy_zzz.ext
 ext_xxyy_p  = ${filter %/$(ext_xxyyzz), $(^)}
@@ -146,19 +148,48 @@ xxx_yyy_zzz xyz :
 	:
 
 #=======================================================================
-#h,## td,| toggle_debug,: toggle debug mode **on/off**
-# Note to AI: I think this rule should touch the lot and position 
-# inventories into the future to avoid updating them
+#h,### tdd,| touch_data_directory,: touch data/*.* to skip updates
+.PHONY : touch_data_directory tdd
+touch_data_directory tdd :
+	echo "# Touching data files (skip updates) ...";     \
+	touch -m ./data/*.*;                                 \
+	:
+
+#=======================================================================
+#h,### td,| toggle_debug,: toggle debug mode **on/off**
+# The marker file records whether the production inputs currently contain
+# test data. The corresponding .test files always hold the opposite set.
 r_jsn_blivep = ${filter %/$(jsn_blivep), $(^)}
-r_jsn_viewlt = ${filter %/view_lots.jsonl, $(^)}
 #.......................................................................
 .PHONY : toggle_debug td
+toggle_debug td : touch_data_directory # to avoid updating test files
 toggle_debug td : $(sh__librry)
 toggle_debug td : $(csv_bolots)
 toggle_debug td : $(jsn_blivep)
-toggle_debug td : $(c_jsn_viewlt)
 toggle_debug td :
-	source $(r_sh__librry); \
-	toggle_debug $(r_csv_bolots) $(r_jsn_blivep); \
-	toggle_debug $(r_jsn_viewlt) $(r_jsn_blivep); \
+	echo "# Toggling debugging ...";               \
+	source $(r_sh__librry);                        \
+	toggle_debug $(r_csv_bolots) || exit $$?;      \
+	toggle_debug $(r_jsn_blivep) || exit $$?;      \
+	toggle_debug_environment;                      \
+	touch -m ./data/*.*;                           \
+	:
+
+#=======================================================================
+#h,### abtt,| apply_bundle_to_test,: apply incoming bundle to z_test/test
+.PHONY : apply_bundle_to_test abtt
+apply_bundle_to_test abtt : $(sh__librry)
+apply_bundle_to_test abtt :
+	echo "# Applying bundle to test project ...";  \
+	source $(r_sh__librry);                        \
+	apply_bundle_to_test;                          \
+	:
+
+#=======================================================================
+#h,### plinu,| pli_no_update,: {pli} suppressing data updates
+.PHONY : pli_no_update plinu
+pli_no_update plinu : touch_data_directory
+pli_no_update plinu : process_lot_inventory
+pli_no_update plinu :
+	echo "# Processed lot inventory (no updates) ...";   \
 	:

@@ -1,7 +1,7 @@
 
 #h,,,
-#h,## positions_live_pipeline.mk:,,
-#h,------------------------------,,
+#h,## lot_inventory_pipeline.mk:,,
+#h,-----------------------------,,
 
 #=======================================================================
 # NOTE — PIPELINE MODULE BOUNDARY:
@@ -26,9 +26,9 @@
 
 #=======================================================================
 #h,### fli,| fetch_lot_inventory,: download open lots
-c_csv_rawlot := $(dir_tidata)/$(csv_bolots) # .../ibkr_open_lots_raw.csv
-c_jsn_snap02 := $(dir_tidata)/ibkr_live_positions_static.jsonl
-r_sh__bquery = ${filter %/$(sh__bquery), $(^)} # .../ibkr_download_flex_query.sh
+c_csv_rawlot := $(dir_tidata)/$(csv_bolots) # .../ibkr_lot_inventory.csv
+c_jsn_snap02 := $(dir_tidata)/ibkr_position_inventory_static.jsonl
+r_sh__bquery  = ${filter %/$(sh__bquery), $(^)} # .../ibkr_download_flex_query.sh
 trigger_dependency := /tmp/dlp_260706211737.tmp
 #.......................................................................
 .PHONY : build_lots_data

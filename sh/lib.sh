@@ -102,7 +102,7 @@ function check_refresh_period() {
 #
 # Do not merge the service implementation into the Make dependency rule.
 function build_lots_data() {
-  local fl_output="${1:-./data/ibkr_open_lots_raw.csv}";
+  local fl_output="${1:-./data/ibkr_lot_inventory.csv}";
   local fl_downloader="${2:-./sh/ibkr_download_flex_query.sh}";
   # local tlength=${3:-$((24*60*60))}
   local dir_data=${fl_output%/*};
@@ -129,7 +129,7 @@ function build_lots_data() {
 #-----------------------------------------------------------------------
 function download_lots_data() { # **legacy**
   local fl_downloader="${1}";
-  local fl_output="${2:-./data/ibkr_open_lots_raw.csv}";
+  local fl_output="${2:-./data/ibkr_lot_inventory.csv}";
   local tlength=${3:-$((24*60*60))};
 
   local -i now=0;
@@ -183,7 +183,7 @@ function download_lots_data() { # **legacy**
 #-----------------------------------------------------------------------
 function normalize_lot_inventory()
 {
-  local fl_output="${1:-./data/ibkr_open_lots_raw.csv}";
+  local fl_output="${1:-./data/ibkr_lot_inventory.csv}";
   local fl_script=${2:-./sh/ibkr_lots_normalize.awk};
   local tlength=${3:-$((24*60*60))}
 
@@ -278,44 +278,156 @@ function copy_view_lots()
 #-----------------------------------------------------------------------
 function toggle_debug()
 {
-  local fl_target=${1};
-  local fl_pi=${2};
-  local fl_stable="${fl_target}.stable";
-  local symbol='';
-  local fl_tmp="${fl_target}.tmp.$$";
+  local fl_target="${1:-}";
+  local fl_test="${fl_target}.test";
+  local fl_temp;
 
-  if [ ! -f "${fl_stable}" ]; then
-
-    mv -- "${fl_target}" "${fl_stable}" || return 1;
-
-    : > "${fl_tmp}" || return 1;
-    if [[ "${fl_target}" == *.csv ]]; then
-      head --lines=1 "${fl_stable}" > "${fl_tmp}" || return 1;
-    fi
-
-    while IFS= read -r symbol; do
-      [[ -n "${symbol}" ]] || continue;
-      if [[ "${fl_target}" == *.csv ]]; then
-        awk -F, -v symbol="${symbol}" 'NR > 1 && $2 == "\"" symbol "\""' "${fl_stable}" >> "${fl_tmp}";
-      else
-        jq --arg symbol "${symbol}" 'select(.symbol == $symbol)' "${fl_stable}" >> "${fl_tmp}";
-      fi
-    done < <(jq -r '.symbol // empty' "${fl_pi}")
-
-    mv --force "${fl_tmp}" "${fl_target}" || return 1;
-    echo "Debug mode ON: ${fl_target}";
-
-  else
-
-    rm --force "${fl_target}";
-    mv -- "${fl_stable}" "${fl_target}" || return 1;
-
-    echo "Debug mode OFF: ${fl_target}";
-
+  if [ -z "${fl_target}" ]; then
+    echo "WARNING: toggle_debug requires one file path." >&2;
+    return 1;
   fi;
 
-  echo "Done: toggle_debug";
+  if [ ! -f "${fl_target}" ]; then
+    echo "WARNING: Target file does not exist: ${fl_target}" >&2;
+    return 1;
+  fi;
+
+  if [ ! -f "${fl_test}" ]; then
+    echo "WARNING: Test version does not exist: ${fl_test}. No files were changed." >&2;
+    return 1;
+  fi;
+
+  if [ -f "./data/testing_environment" ]; then
+    echo "# Switching ${fl_target} from test to production ...";
+  else
+    echo "# Switching ${fl_target} from production to test ...";
+  fi;
+
+  fl_temp="${fl_target}.toggle_debug_tmp.$$";
+  if ! mv -- "${fl_target}" "${fl_temp}"; then
+    echo "WARNING: Could not stage target file: ${fl_target}" >&2;
+    return 1;
+  fi;
+  if ! mv -- "${fl_test}" "${fl_target}"; then
+    mv -- "${fl_temp}" "${fl_target}";
+    echo "WARNING: Could not install test version: ${fl_test}. Original target restored." >&2;
+    return 1;
+  fi;
+  if ! mv -- "${fl_temp}" "${fl_test}"; then
+    mv -- "${fl_target}" "${fl_test}";
+    mv -- "${fl_temp}" "${fl_target}";
+    echo "WARNING: Could not complete file swap. Original files restored where possible." >&2;
+    return 1;
+  fi;
+
+  echo "Done: toggle_debug (${fl_target})";
   return 0;
+}
+
+#-----------------------------------------------------------------------
+function toggle_debug_environment()
+{
+  local fl_flag="./data/testing_environment";
+
+  if [ -f "${fl_flag}" ]; then
+    rm -- "${fl_flag}" || return 1;
+    echo "# Environment: production";
+  else
+    touch "${fl_flag}" || return 1;
+    echo "# Environment: test";
+  fi;
+
+  return 0;
+}
+
+#-----------------------------------------------------------------------
+# Apply the fixed incoming Git bundle to the independent test project.
+# The bundle's commit message is reused for the test-project commit; its
+# synthetic history is fetched for inspection, not merged into test history.
+function apply_bundle_to_test() {
+  local dir_root dir_workspace dir_test dir_bundle fl_bundle fl_hash
+  local fl_hash_marker fl_message tmp_message commit_id rel_file fl_file
+  local old_hash=''
+
+  dir_root=$(git rev-parse --show-toplevel) || return 1
+  dir_workspace="${dir_root}/z_test"
+  dir_test="${dir_workspace}/test"
+  dir_bundle="${dir_workspace}/bundle"
+  fl_bundle="${dir_workspace}/trading_intel.bundle"
+  fl_hash_marker="${dir_workspace}/hash.txt"
+
+  if [[ ! -f "${fl_bundle}" ]]; then
+    echo "abtt: bundle not found: ${fl_bundle}" >&2
+    return 1
+  fi
+  if [[ ! -d "${dir_test}/.git" ]]; then
+    echo "abtt: test project is not a Git repository: ${dir_test}" >&2
+    return 1
+  fi
+
+  fl_hash=$(sha256sum "${fl_bundle}") || return 1
+  fl_hash=${fl_hash%% *}
+  if [[ -f "${fl_hash_marker}" ]]; then
+    read -r old_hash < "${fl_hash_marker}"
+  fi
+  if [[ "${fl_hash}" == "${old_hash}" ]]; then
+    echo "abtt: bundle already applied (${fl_hash:0:12}); nothing to do."
+    return 0
+  fi
+
+  # Avoid overwriting local edits to tracked test sources.
+  if [[ -n "$(git -C "${dir_test}" status --porcelain --untracked-files=no)" ]]; then
+    echo "abtt: test project has uncommitted tracked changes; commit or revert them first." >&2
+    return 1
+  fi
+
+  # Verify and fetch the bundle into the test repository so its commit
+  # object and original message are available without creating a clone.
+  if ! git -C "${dir_test}" bundle verify "${fl_bundle}" >/dev/null; then
+    echo "abtt: bundle verification failed." >&2
+    return 1
+  fi
+  if ! git -C "${dir_test}" fetch --quiet "${fl_bundle}" HEAD; then
+    echo "abtt: could not import bundle commit." >&2
+    return 1
+  fi
+  commit_id=$(git -C "${dir_test}" rev-parse 'FETCH_HEAD^{commit}') || return 1
+  fl_message="$(git -C "${dir_test}" show -s --format=%B "${commit_id}")" || return 1
+  if [[ -z "${fl_message//[[:space:]]/}" ]]; then
+    fl_message='Apply incoming source bundle'
+  fi
+
+  mkdir -p "${dir_bundle}" || return 1
+  find "${dir_bundle}" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} + || return 1
+  if ! git -C "${dir_test}" archive "${commit_id}" | tar -x -C "${dir_bundle}"; then
+    echo "abtt: could not expand bundle into ${dir_bundle}." >&2
+    return 1
+  fi
+
+  # Copy only files supplied by the bundle; unrelated test files remain.
+  while IFS= read -r -d '' fl_file; do
+    rel_file=${fl_file#"${dir_bundle}/"}
+    mkdir -p "${dir_test}/$(dirname -- "${rel_file}")" || return 1
+    cp -p -- "${fl_file}" "${dir_test}/${rel_file}" || return 1
+    git -C "${dir_test}" add -- "${rel_file}" || return 1
+  done < <(find "${dir_bundle}" -type f -print0)
+
+  if ! git -C "${dir_test}" diff --cached --quiet; then
+    tmp_message=$(mktemp) || return 1
+    printf '%s\n' "${fl_message}" > "${tmp_message}"
+    if ! git -C "${dir_test}" commit --file="${tmp_message}"; then
+      rm -f -- "${tmp_message}"
+      echo "abtt: test commit failed; bundle marker was not updated." >&2
+      return 1
+    fi
+    rm -f -- "${tmp_message}"
+  else
+    echo "abtt: source files already match this bundle; no new test commit needed."
+  fi
+
+  printf '%s\n' "${fl_hash}" > "${fl_hash_marker}.tmp" || return 1
+  mv -f -- "${fl_hash_marker}.tmp" "${fl_hash_marker}" || return 1
+  echo "abtt: applied ${commit_id:0:12}; test project updated."
 }
 
 #-----------------------------------------------------------------------

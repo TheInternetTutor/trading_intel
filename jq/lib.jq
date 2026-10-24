@@ -10,7 +10,6 @@
 #<disec>----------------------------------------------------------------
 ########################################################################
 # SCRIPT: lib.js
-
 #</disec>----------------------------------------------------------------
 
 
@@ -616,10 +615,10 @@ def close_position($live):
   | add as $positions
 
   | $records
-  | debug(
-      ">>> LIVE POSITION MAP: "
-      + ($positions | tojson)
-    )
+  # | debug(
+  #     ">>> LIVE POSITION MAP: "
+  #     + ($positions | tojson)
+  #   )
 
   | (map(.symbol) | unique) as $record_symbols
   | ($record_symbols
@@ -807,28 +806,26 @@ def decrease_position($live):
          )
       )
 ;
-
 #<disec>----------------------------------------------------------------
+#...
 #=======================================================================
 # Pipeline
 #=======================================================================
-# SCRIPT: lib.js
-
 def pipeline($live):
 
   display_lots_canonically
 
-  #...
-  | close_position($live)    # new stages
+  # | close_position($live)    # new stages
   # | new_position($live)      # new stages
   # | reverse_position($live)  # new stages
   # | increase_position($live) # new stages
   # | decrease_position($live) # new stages (LIFO)
-  # #...
+
   | update_mark_prices($live)
 
   | consolidate_lots
-
+#...
+#</disec>---------------------------------------------------------------
   | classify_bke
   | classify_los
   | classify_hvt
@@ -849,7 +846,6 @@ def pipeline($live):
 
 pipeline($live)
 | .[]
-#</disec>----------------------------------------------------------------
 
 
 #<disec>----------------------------------------------------------------

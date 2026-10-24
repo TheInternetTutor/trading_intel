@@ -1,11 +1,11 @@
 
 #h,,,
-#h,## positions_live_pipeline.mk:,,
-#h,------------------------------,,
+#h,## position_inventory_pipeline.mk:,,
+#h,----------------------------------,,
 
 #=======================================================================
 #h,### fpi,| fetch_position_inventory,: download live positions
-c_jsn_blivep       := $(dir_tidata)/$(jsn_blivep) # .../ibkr_live_positions.jsonl
+c_jsn_blivep       := $(dir_tidata)/$(jsn_blivep) # .../ibkr_position_inventory.jsonl
 r_py__blivep        = ${filter %/$(py__blivep), $(^)}
 trigger_dependency := /tmp/dlp_260706211938.tmp
 #.......................................................................
@@ -75,7 +75,7 @@ $(c_jsn_blivep) ::                               \
 # 020_canon_sorted_
 
 #=======================================================================
-r_jsn_snap01 = $(@:.jsonl=_static.jsonl) # .../ibkr_live_positions_static.jsonl
+r_jsn_snap01 = $(@:.jsonl=_static.jsonl) # .../ibkr_position_inventory_static.jsonl
 c_jsn_blives=${subst .jsonl,_sample.jsonl,$(@)};
 #.......................................................................
 $(c_jsn_blivep) ::                               \
