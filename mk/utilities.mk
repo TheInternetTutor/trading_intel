@@ -166,10 +166,10 @@ unset_git_user ugu :
 	:
 
 #=======================================================================
-#h,### abtt,| apply_bundle_to_test,: apply incoming bundle to z_test/test
-.PHONY : apply_bundle_to_test abtt
-apply_bundle_to_test abtt : $(sh__librry)
-apply_bundle_to_test abtt :
+#h,### ab,| apply_bundle,: apply bundle to curren repo
+.PHONY : apply_bundle ab
+apply_bundle ab : $(sh__librry)
+apply_bundle ab :
 	echo "# Applying bundle to test project ...";  \
 	source $(r_sh__librry);                        \
 	apply_bundle;                          				 \
