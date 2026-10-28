@@ -452,7 +452,7 @@ function test_pipeline()
 #-----------------------------------------------------------------------
 function create_git_bundle()
 {
-  local bundle='transport.bundle'
+  local bundle='update.bundle'
   local base='056b2aa4d60d5be5be9c5d40bc3e8da0eab83f79'
 
   echo "# Creating Git bundle ..."

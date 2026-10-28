@@ -132,32 +132,6 @@ diplay_file_manifest dfm dfmf :
 # $ make dlp pld -n | fmt -w 1 | sort | uniq | grep '/finanz' | grep -v '/data/' | nl
 
 #=======================================================================
-.DEFAULT :
-	echo "*** ERROR: Unknown target '$(@)'."; \
-	echo "*** Try: make help"; \
-	:
-
-#=======================================================================
-#h,### xyz,| xxx_yyy_zzz,: simple generic **template** rule
-#.......................................................................
-ext_xxyyzz := xxx_yyy_zzz.ext
-ext_xxyy_p  = ${filter %/$(ext_xxyyzz), $(^)}
-#.......................................................................
-.PHONY : xxx_yyy_zzz xyz
-xxx_yyy_zzz xyz : $(ext_xxyyzz)
-xxx_yyy_zzz xyz :
-	echo $(ext_xxyy_p); \
-	:
-
-#=======================================================================
-#h,### tdd,| touch_data_directory,: touch data/*.* to skip updates
-.PHONY : touch_data_directory tdd
-touch_data_directory tdd :
-	echo "# Touching data files (skip updates) ...";     \
-	touch -m ./data/*.*;                                 \
-	:
-
-#=======================================================================
 #h,### ite,| is_test_enviroment,: environment in test mode? true/false
 r_testenv = ${filter %/testing_environment, $(^)}
 #.......................................................................
@@ -169,13 +143,21 @@ is_test_enviroment ite :
 	:
 
 #=======================================================================
+#h,### tdd,| touch_data_directory,: touch data/*.* to skip updates
+.PHONY : touch_data_directory tdd
+touch_data_directory tdd :
+	echo "# Touching data files (skip updates) ...";     \
+	touch -m ./data/*.*;                                 \
+	:
+
+#=======================================================================
 #h,### td,| toggle_debug,: toggle debug mode **on/off**
 # The marker file records whether the production inputs currently contain
 # test data. The corresponding .test files always hold the opposite set.
 r_jsn_blivep = ${filter %/$(jsn_blivep), $(^)}
 #.......................................................................
 .PHONY : toggle_debug td
-toggle_debug td : touch_data_directory # to avoid updating test files
+toggle_debug td : touch_data_directory # avoid updating test files
 toggle_debug td : $(sh__librry)
 toggle_debug td : $(csv_bolots)
 toggle_debug td : $(jsn_blivep)
@@ -191,11 +173,13 @@ toggle_debug td :
 #=======================================================================
 #h,### plinu,| pli_no_update,: {pli} suppressing data updates
 .PHONY : pli_no_update plinu
-pli_no_update plinu : touch_data_directory
+pli_no_update plinu : touch_data_directory # avoid updating test files
 pli_no_update plinu : process_lot_inventory
 pli_no_update plinu :
 	echo "# Processed lot inventory (no updates) ...";   \
 	:
+# Note: 2610281404: consider rules {pli_no_update} and {test_pipeline}
+#   for simplification, combination, or merging.
 
 #=======================================================================
 #h,### tp,| test_pipeline,: test pipeline without updating
@@ -213,3 +197,23 @@ test_pipeline tp :
 	:
 #.......................................................................
 testing_environment : ;
+# Note: 2610281404: consider rules {pli_no_update} and {test_pipeline}
+#   for simplification, combination, or merging.
+
+#=======================================================================
+#h,### xyz,| xxx_yyy_zzz,: simple generic **template** rule
+#.......................................................................
+ext_xxyyzz := xxx_yyy_zzz.ext
+ext_xxyy_p  = ${filter %/$(ext_xxyyzz), $(^)}
+#.......................................................................
+.PHONY : xxx_yyy_zzz xyz
+xxx_yyy_zzz xyz : $(ext_xxyyzz)
+xxx_yyy_zzz xyz :
+	echo $(ext_xxyy_p); \
+	:
+
+#=======================================================================
+.DEFAULT :
+	echo "*** ERROR: Unknown target '$(@)'."; \
+	echo "*** Try: make help"; \
+	:

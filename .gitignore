@@ -132,7 +132,3 @@ prompts*
 *.bundle
 .transport.bundle.sha256
 .transport.bundle.sha256.tmp
-
-# Applied-content fingerprint for Transform.bundle
-.Transform.bundle.sha256
-.Transform.bundle.sha256.tmp
