@@ -452,23 +452,31 @@ function test_pipeline()
 #-----------------------------------------------------------------------
 function create_git_bundle()
 {
-  GIT_BUNDLE_BASE=056b2aa4d60d5be5be9c5d40bc3e8da0eab83f79;
-  echo "# Creating Git bundle ...";
-  test -n "$(GIT_BUNDLE_BASE)" || {
-    echo "ERROR: GIT_BUNDLE_BASE is not set."; exit 1;
-  };
-  git cat-file -e "$(GIT_BUNDLE_BASE)^{commit}" || {
-    echo "ERROR: Bundle base commit not found."; exit 1;
-  };
-  git bundle create ai.bundle HEAD "^$(GIT_BUNDLE_BASE)" || {
-    echo "ERROR: Git bundle creation failed."; exit 1;
-  };
-  git bundle verify ai.bundle || {
-    echo "ERROR: Git bundle verification failed."; exit 1;
-  };
-  echo "# Bundle created and verified: transport.bundle";
-  :
-  return 0;
+  local bundle='transport.bundle'
+  local base='056b2aa4d60d5be5be9c5d40bc3e8da0eab83f79'
+
+  echo "# Creating Git bundle ..."
+  test -n "${base}" || {
+    echo "ERROR: Bundle base commit is not set." >&2
+    return 1
+  }
+  git cat-file -e "${base}^{commit}" || {
+    echo "ERROR: Bundle base commit not found: ${base}" >&2
+    return 1
+  }
+  git merge-base --is-ancestor "${base}" HEAD || {
+    echo "ERROR: Bundle base commit is not an ancestor of HEAD." >&2
+    return 1
+  }
+  git bundle create "${bundle}" HEAD "^${base}" || {
+    echo "ERROR: Git bundle creation failed." >&2
+    return 1
+  }
+  git bundle verify "${bundle}" || {
+    echo "ERROR: Git bundle verification failed." >&2
+    return 1
+  }
+  echo "# Bundle created and verified: ${bundle}"
 }
 
 #-----------------------------------------------------------------------
