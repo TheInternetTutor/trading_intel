@@ -8,6 +8,7 @@
 c_jsn_blivep       := $(dir_tidata)/$(jsn_blivep) # .../ibkr_position_inventory.jsonl
 r_py__blivep        = ${filter %/$(py__blivep), $(^)}
 trigger_dependency := /tmp/dlp_260706211938.tmp
+TRIGGER_DEPENDENCIES += $(trigger_dependency)
 #.......................................................................
 .PHONY : download_live_positions
 download_live_positions : $(c_jsn_blivep)

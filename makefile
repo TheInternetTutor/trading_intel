@@ -158,6 +158,17 @@ touch_data_directory tdd :
 	:
 
 #=======================================================================
+#h,### ite,| is_test_enviroment,: environment in test mode? true/false
+r_testenv = ${filter %/testing_environment, $(^)}
+#.......................................................................
+.PHONY : is_test_enviroment ite
+is_test_enviroment ite : testing_environment
+is_test_enviroment ite :
+	echo -en "<$(r_testenv)> exist? ";
+	[ -f "$(r_testenv)" ] && echo true || echo false;
+	:
+
+#=======================================================================
 #h,### td,| toggle_debug,: toggle debug mode **on/off**
 # The marker file records whether the production inputs currently contain
 # test data. The corresponding .test files always hold the opposite set.

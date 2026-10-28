@@ -30,6 +30,7 @@ c_csv_rawlot := $(dir_tidata)/$(csv_bolots) # .../ibkr_lot_inventory.csv
 c_jsn_snap02 := $(dir_tidata)/ibkr_position_inventory_static.jsonl
 r_sh__bquery  = ${filter %/$(sh__bquery), $(^)} # .../ibkr_download_flex_query.sh
 trigger_dependency := /tmp/dlp_260706211737.tmp
+TRIGGER_DEPENDENCIES += $(trigger_dependency)
 #.......................................................................
 .PHONY : build_lots_data
 build_lots_data : $(c_csv_rawlot)
