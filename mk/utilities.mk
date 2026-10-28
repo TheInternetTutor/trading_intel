@@ -188,6 +188,6 @@ create_git_bundle cgb :
 #h,### zr,| zip_repository,: create a zip with code-base + git-database
 .PHONY : zip_repository zr
 zip_repository zr :
-	{ git ls-files; find .git/;} > file.manifest; \
-	zip -@ trading_intel.zip < file.manifest; \
+	{ git ls-files; find .git/;} > files.manifest; \
+	zip -@ trading_intel.zip < files.manifest; \
 	:
