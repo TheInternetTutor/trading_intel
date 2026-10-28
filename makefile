@@ -178,16 +178,6 @@ toggle_debug td :
 	:
 
 #=======================================================================
-#h,### abtt,| apply_bundle_to_test,: apply incoming bundle to z_test/test
-.PHONY : apply_bundle_to_test abtt
-apply_bundle_to_test abtt : $(sh__librry)
-apply_bundle_to_test abtt :
-	echo "# Applying bundle to test project ...";  \
-	source $(r_sh__librry);                        \
-	apply_bundle;                          				 \
-	:
-
-#=======================================================================
 #h,### plinu,| pli_no_update,: {pli} suppressing data updates
 .PHONY : pli_no_update plinu
 pli_no_update plinu : touch_data_directory
@@ -197,19 +187,18 @@ pli_no_update plinu :
 	:
 
 #=======================================================================
-#h,### ugu,| unset_git_user,: Unset git's local user config entries
-.PHONY : unset_git_user ugu
-unset_git_user ugu :
-	echo "# Current git config ...";               \
-	git var GIT_AUTHOR_IDENT;                      \
-	git var GIT_COMMITTER_IDENT;                   \
-	git config --local --unset-all user.name;      \
-	git config --local --unset-all user.email;     \
-	echo "# New git config ...";                   \
-	git var GIT_AUTHOR_IDENT;                      \
-	git var GIT_COMMITTER_IDENT;                   \
+#h,### tp,| test_pipeline,: test pipeline without updating
+.PHONY : test_pipeline tp
+test_pipeline tp : $(sh__librry)
+test_pipeline tp : view_lots.sh
+test_pipeline tp : view_lots.jsonl
+test_pipeline tp : testing_environment
+test_pipeline tp :
+	source $(r_sh__librry);                              \
+	source ${filter %/view_lots.sh, $(^)}                \
+	${filter %/view_lots.jsonl, $(^)}                    \
+	> /dev/null;                                         \
+	test_pipeline ${filter %/testing_environment, $(^)}; \
 	:
-# 	git config --local --list --show-origin;
-# 	git config --local --get user.name;
-# 	git config --local --get user.email;
-
+#.......................................................................
+testing_environment : ;

@@ -89,8 +89,8 @@ Principle:
 #--documentation
 
 #-----------------------------------------------------------------------
-function get_formats(){
-
+function get_formats()
+{
     local -n ref_labels="${1}";
     local -n ref_hdr="${2}";
     local -n ref_rcd="${3}";
@@ -154,7 +154,8 @@ function get_formats(){
 
 #-----------------------------------------------------------------------
 # Note to AI: next function should be implemented in {jq}
-function vl.fieldx() {
+function vl.fieldx()
+{
     local symbol="${1:?*** MISSING SYMBOL! ***}";
     local field="${2:?*** MISSING FIELD NUMBER! ***}";
     local factor="${3:?*** MISSING FACTOR! ***}";
@@ -614,10 +615,10 @@ quantity                      record_type                   report_date
 serial_number                 side                          symbol
 #--keys-[*dbg*]
 schema=$(cat <<-'EOF'
-SYM        | symbol               | s   | 6    |---
+SYM        | symbol               | s   | 7    |---
 STATE      | lock_state           | s   | 6    |---
 QTY        | quantity             | d   | 5    |---
-PNL        | fifo_pnl_unrealized  | f   | 10   |3
+PNL        | fifo_pnl_unrealized  | f   | 11   |3
 LCK_LOSS   | locking_lots_pnl     | f   | 10   |3
 AGE        | lot_age              | s   | 8    |---
 MARK       | mark_price           | f   | 10   |3
@@ -651,3 +652,25 @@ END {
 
 get_formats LABELS fmt_hdr fmt_rcd jq_filter "${schema}"
 # printf "${fmt_hdr}" ${LABELS};
+
+# Export ...
+# declare -fx get_formats;
+# declare -fx vl.fieldx;
+# declare -fx require_input_data;
+# declare -fx render_lots_view;
+# declare -fx group_by_pnl;
+# declare -fx group_by_month;
+# declare -fx generate_lot_state_report;
+# declare -fx report_harvestable_lots;
+# declare -fx report_locked_lots;
+# declare -fx report_lossing_lots;
+# declare -fx report_breakeven_lots;
+# declare -fx show_lots_by_symbol;
+# declare -fx list_lot_symbols;
+# declare -fx show_harvestable_inventory;
+# declare -fx write_ib_lot_symbols;
+# declare -fx generate_ibkr_lot_import;
+# declare -fx declare_p;
+# declare -fx generate_lots_report;
+# declare -fx generate_lots_report_file;
+# declare -fx update_lots_view;

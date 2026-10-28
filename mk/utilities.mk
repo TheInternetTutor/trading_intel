@@ -141,3 +141,45 @@ display_sections ds :
 	  $$0 ~ re_close { printing = 0; next }        \
 	  printing      { print }                      \
 	';                                             \
+
+#=======================================================================
+#h,### sgu,| show_git_user,: Show git's local user config entries
+.PHONY : show_git_user sgu
+show_git_user sgu :
+	echo "# Current git config ...";               \
+	git var GIT_AUTHOR_IDENT;                      \
+	git var GIT_COMMITTER_IDENT;                   \
+	git config --local --list --show-origin;       \
+	:
+	# git config --local --get user.name;            \
+	# git config --local --get user.email;           \
+
+#=======================================================================
+#h,### ugu,| unset_git_user,: Unset git's local user config entries
+.PHONY : unset_git_user ugu
+unset_git_user ugu : show_git_user
+unset_git_user ugu :
+	git config --local --unset-all user.name;      \
+	git config --local --unset-all user.email;     \
+	echo "# New git config ...";                   \
+	git config --local --list --show-origin;       \
+	:
+
+#=======================================================================
+#h,### abtt,| apply_bundle_to_test,: apply incoming bundle to z_test/test
+.PHONY : apply_bundle_to_test abtt
+apply_bundle_to_test abtt : $(sh__librry)
+apply_bundle_to_test abtt :
+	echo "# Applying bundle to test project ...";  \
+	source $(r_sh__librry);                        \
+	apply_bundle;                          				 \
+	:
+
+#=======================================================================
+#h,### cgb,| create_git_bundle,: Create incremental Git bundle
+.PHONY : create_git_bundle cgb
+create_git_bundle cgb : $(sh__librry)
+create_git_bundle cgb :
+	source $(r_sh__librry);              \
+	create_git_bundle;                   \
+	:

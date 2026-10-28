@@ -333,7 +333,9 @@ function toggle_debug_environment()
     rm -- "${fl_flag}" || return 1;
     echo "# Environment: production";
   else
-    touch "${fl_flag}" || return 1;
+    echo -e "Use:\n   $ make td\nto swith back to production mode."  \
+    > "${fl_flag}"                                                   \
+    || return 1;
     echo "# Environment: test";
   fi;
 
@@ -428,6 +430,45 @@ function apply_bundle() {
   printf '%s\n' "${fl_hash}" > "${fl_hash_marker}.tmp" || return 1
   mv -f -- "${fl_hash_marker}.tmp" "${fl_hash_marker}" || return 1
   echo "abtt: applied ${commit_id:0:12}; project sources updated."
+}
+
+#-----------------------------------------------------------------------
+function test_pipeline()
+{
+  local flag=${1};
+  if [ -f "${flag}" ]; then { 
+    make plinu > /dev/null;
+    render_lots_view | sort;
+  } else {
+  {
+    echo "!!! Current mode: production! Execute:";
+    echo "  $ make toggle_debug # td";
+    echo "to switch environment to debugging mode";
+  } > /dev/stderr;
+  } fi
+  return 0;
+}
+
+#-----------------------------------------------------------------------
+function create_git_bundle()
+{
+  GIT_BUNDLE_BASE = 056b2aa4d60d5be5be9c5d40bc3e8da0eab83f79;
+  echo "# Creating Git bundle ...";
+  test -n "$(GIT_BUNDLE_BASE)" || {
+    echo "ERROR: GIT_BUNDLE_BASE is not set."; exit 1;
+  };
+  git cat-file -e "$(GIT_BUNDLE_BASE)^{commit}" || {
+    echo "ERROR: Bundle base commit not found."; exit 1;
+  };
+  git bundle create ai.bundle HEAD "^$(GIT_BUNDLE_BASE)" || {
+    echo "ERROR: Git bundle creation failed."; exit 1;
+  };
+  git bundle verify ai.bundle || {
+    echo "ERROR: Git bundle verification failed."; exit 1;
+  };
+  echo "# Bundle created and verified: ai.bundle";
+  :
+  return 0;
 }
 
 #-----------------------------------------------------------------------
