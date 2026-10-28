@@ -352,8 +352,8 @@ function apply_bundle() {
   old_hash=''
 
   dir_root=$(git rev-parse --show-toplevel) || return 1
-  fl_bundle="${dir_root}/trading_intel.bundle"
-  fl_hash_marker="${dir_root}/.trading_intel.bundle.sha256"
+  fl_bundle="${dir_root}/transport.bundle"
+  fl_hash_marker="${dir_root}/.transport.bundle.sha256"
 
   if [[ ! -f "${fl_bundle}" ]]; then
     echo "abtt: bundle not found: ${fl_bundle}" >&2
@@ -452,7 +452,7 @@ function test_pipeline()
 #-----------------------------------------------------------------------
 function create_git_bundle()
 {
-  GIT_BUNDLE_BASE = 056b2aa4d60d5be5be9c5d40bc3e8da0eab83f79;
+  GIT_BUNDLE_BASE=056b2aa4d60d5be5be9c5d40bc3e8da0eab83f79;
   echo "# Creating Git bundle ...";
   test -n "$(GIT_BUNDLE_BASE)" || {
     echo "ERROR: GIT_BUNDLE_BASE is not set."; exit 1;
@@ -466,7 +466,7 @@ function create_git_bundle()
   git bundle verify ai.bundle || {
     echo "ERROR: Git bundle verification failed."; exit 1;
   };
-  echo "# Bundle created and verified: ai.bundle";
+  echo "# Bundle created and verified: transport.bundle";
   :
   return 0;
 }

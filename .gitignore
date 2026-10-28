@@ -130,5 +130,5 @@ prompts*
 
 # Incoming Git bundle and its applied-content fingerprint
 *.bundle
-.trading_intel.bundle.sha256
-.trading_intel.bundle.sha256.tmp
+.transport.bundle.sha256
+.transport.bundle.sha256.tmp
