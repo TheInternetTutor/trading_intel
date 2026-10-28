@@ -183,3 +183,11 @@ create_git_bundle cgb :
 	source $(r_sh__librry);              \
 	create_git_bundle;                   \
 	:
+
+#=======================================================================
+#h,### zr,| zip_repository,: create a zip with code-base + git-database
+.PHONY : zip_repository zr
+zip_repository zr :
+	{ git ls-files; find .git/;} > file.manifest; \
+	zip -@ trading_intel.zip < file.manifest; \
+	:

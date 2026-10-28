@@ -127,6 +127,7 @@ data/*
 
 prompts*
 *.diff
+*.zip
 
 # Incoming Git bundle and its applied-content fingerprint
 *.bundle
