@@ -51,7 +51,7 @@ Before applying it, inspect the repository status and incoming bundle. For examp
 - `sha256sum update.bundle`
 - Compare the resulting hash with `.update.bundle.sha256`, if that marker exists.
 
-The project's apply rule is `make ab`. **Do not run it merely because a bundle is present.** Review what it will change and obtain explicit authorization before applying it. The current `apply_bundle()` function verifies the bundle, copies its source files into the repository, stages changes, and may create a local commit using the incoming commit message; it then updates the hash marker. Applying a bundle is therefore a repository-changing operation, not just a read-only import.
+The project's apply rule is `make ab`. **Do not run it merely because a bundle is present.** Review what it will change and obtain explicit authorization before applying it. The current `apply_bundle()` function verifies the bundle, copies its source files into the repository, and stages changes. If it creates a local commit, it uses the incoming commit message and preserves the incoming commit author name, email, and author date; the receiving repository’s configured identity remains the committer. It then updates the hash marker. Applying a bundle is therefore a repository-changing operation, not just a read-only import.
 
 ### 5. Development and validation cycle
 

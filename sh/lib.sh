@@ -349,6 +349,7 @@ function toggle_debug_environment()
 function apply_bundle() {
   local dir_root dir_extract fl_bundle fl_hash fl_hash_marker old_hash
   local fl_message tmp_message commit_id fl_file rel_file
+  local author_name author_email author_date
   old_hash=''
 
   dir_root=$(git rev-parse --show-toplevel) || return 1
@@ -385,6 +386,13 @@ function apply_bundle() {
   fi
   commit_id=$(git -C "${dir_root}" rev-parse 'FETCH_HEAD^{commit}') || return 1
   fl_message=$(git -C "${dir_root}" show -s --format=%B "${commit_id}") || return 1
+  author_name=$(git -C "${dir_root}" show -s --format=%an "${commit_id}") || return 1
+  author_email=$(git -C "${dir_root}" show -s --format=%ae "${commit_id}") || return 1
+  author_date=$(git -C "${dir_root}" show -s --format=%aI "${commit_id}") || return 1
+  if [[ -z "${author_name}" || -z "${author_email}" || -z "${author_date}" ]]; then
+    echo "abtt: incoming commit is missing author metadata." >&2
+    return 1
+  fi
   if [[ -z "${fl_message//[[:space:]]/}" ]]; then
     fl_message='Apply incoming source bundle'
   fi
@@ -417,7 +425,12 @@ function apply_bundle() {
   if ! git -C "${dir_root}" diff --cached --quiet; then
     tmp_message=$(mktemp) || return 1
     printf '%s\n' "${fl_message}" > "${tmp_message}"
-    if ! git -C "${dir_root}" commit --file="${tmp_message}"; then
+    # Preserve the incoming commit's author identity and date. Git still uses
+    # the receiving repository's configured identity for the committer.
+    if ! GIT_AUTHOR_NAME="${author_name}" \
+         GIT_AUTHOR_EMAIL="${author_email}" \
+         GIT_AUTHOR_DATE="${author_date}" \
+         git -C "${dir_root}" commit --file="${tmp_message}"; then
       rm -f -- "${tmp_message}"
       echo "abtt: commit failed; bundle marker was not updated." >&2
       return 1
