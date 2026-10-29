@@ -352,8 +352,8 @@ function apply_bundle() {
   old_hash=''
 
   dir_root=$(git rev-parse --show-toplevel) || return 1
-  fl_bundle="${dir_root}/transport.bundle"
-  fl_hash_marker="${dir_root}/.transport.bundle.sha256"
+  fl_bundle="${dir_root}/update.bundle"
+  fl_hash_marker="${dir_root}/.update.bundle.sha256"
 
   if [[ ! -f "${fl_bundle}" ]]; then
     echo "abtt: bundle not found: ${fl_bundle}" >&2
