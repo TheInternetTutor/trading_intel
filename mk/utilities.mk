@@ -188,6 +188,22 @@ create_git_bundle cgb :
 #h,### zr,| zip_repository,: create a zip with code-base + git-database
 .PHONY : zip_repository zr
 zip_repository zr :
-	{ git ls-files; find .git/;} > files.manifest; \
-	zip -@ trading_intel.zip < files.manifest; \
+	echo "# Archiving code-base and git-database:";      \
+	git ls-files > files.manifest;                       \
+	find .git/ > git.manifest;                           \
+	cat files.manifest git.manifest                      \
+	| zip -@ trading_intel.zip;                          \
+	rm --force git.manifest;                             \
+	:
+
+#=======================================================================
+#h,### tue,| to_unix_endline,: convert line end to unix
+# **Note: still not implemented! this is just a stubs!**
+r_man__files = ${filter %files.manifest, $(^)}
+#.......................................................................
+.PHONY : to_unix_endline tue
+to_unix_endline tue : files.manifest
+to_unix_endline tue :
+	echo "# Converting line ends to Unix format:";       \
+	echo "dos2unix < $(r_man__files)";                   \
 	:
