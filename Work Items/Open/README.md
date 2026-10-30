@@ -1,0 +1,15 @@
+# Open Work Items
+
+This directory contains independently maintained work-item documents for Trading Intel. Each document describes one issue, its scope, required investigation or implementation, and the evidence needed to consider it resolved.
+
+## Current items
+
+- [010 — Prevent invalid prices from entering inventory calculations](010_prevent_invalid_inventory_prices.md)
+- [020 — Repair and verify jq filter line endings](020_repair_jq_line_endings.md)
+- [030 — Restore and verify market-open detection](030_restore_market_open_detection.md)
+- [040 — Align Git bundle creation and application](040_align_git_bundle_workflows.md)
+- [050 — Separate the source manifest from Git internals](050_exclude_git_internals_from_manifest.md)
+- [060 — Clarify Make target dependencies and refresh triggers](060_clarify_make_refresh_triggers.md)
+- [070 — Establish a repeatable end-to-end test baseline](070_establish_end_to_end_test_baseline.md)
+
+Move a work-item document to `../Completed/` only after its implementation and stated verification requirements have been completed. Keep unresolved questions and test limitations explicit.

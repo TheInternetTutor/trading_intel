@@ -2,6 +2,8 @@
 .update.bundle.sha256
 @/trading_intel.sublime-project
 @/trading_intel.sublime-workspace
+ISSUES_TO_RESOLVE.md
+README.md
 data/ibkr_lot_inventory.csv
 data/ibkr_lot_inventory.csv.test
 data/ibkr_position_inventory.jsonl
