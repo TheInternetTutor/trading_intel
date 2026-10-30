@@ -4,6 +4,23 @@
 @/trading_intel.sublime-workspace
 ISSUES_TO_RESOLVE.md
 README.md
+README/010_project_overview.md
+README/020_environment_setup.md
+README/030_git_identity.md
+README/040_bundle_exchange.md
+README/050_development_and_validation.md
+README/060_make_target_reference.md
+README/070_work_item_tracking.md
+README/080_safety_and_change_control.md
+Work Items/Completed/.gitkeep
+Work Items/Open/010_prevent_invalid_inventory_prices.md
+Work Items/Open/020_repair_jq_line_endings.md
+Work Items/Open/030_restore_market_open_detection.md
+Work Items/Open/040_align_git_bundle_workflows.md
+Work Items/Open/050_exclude_git_internals_from_manifest.md
+Work Items/Open/060_clarify_make_refresh_triggers.md
+Work Items/Open/070_establish_end_to_end_test_baseline.md
+Work Items/Open/README.md
 data/ibkr_lot_inventory.csv
 data/ibkr_lot_inventory.csv.test
 data/ibkr_position_inventory.jsonl
