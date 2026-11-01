@@ -1,6 +1,6 @@
-# Trading Intel — AI Quick Reference
+# README — AI Quick Reference
 
-**Purpose:** Compact operational context for an AI joining or resuming work on the Trading Intel repository. This reference is deliberately concise and self-contained so it can be combined with references from other projects without loading the full human-oriented documentation.
+**Purpose:** Compact operational context for an AI joining or resuming work on the Trading Intel repository. This reference is deliberately concise and self-contained so it can be combined with references from other projects without loading the full human-oriented documentation. This quick reference has been generated from the documentation under "README/".
 
 ## Roles and workflows
 
@@ -22,8 +22,8 @@ For a new Engineer workspace:
 1. Obtain and extract the repository or the agreed incoming bundle; work from the repository root.
 2. Verify `git rev-parse --show-toplevel`, `git status --short`, and `git log -1`.
 3. Run `make itd` to initialize temporary refresh-trigger dependencies before Make targets that rely on them.
-4. Configure the Engineer's intended global Git identity with `git config --global user.name` and `git config --global user.email`.
-5. Run `make ugu` to remove repository-local identity overrides.
+4. Run `make ugu` to remove repository-local identity overrides.
+5. Configure the Engineer's intended global Git identity with `git config --global user.name` and `git config --global user.email`.
 6. Verify identity and configuration origin with `git config --show-origin --get user.name`, `git config --show-origin --get user.email`, `git var GIT_AUTHOR_IDENT`, and `git var GIT_COMMITTER_IDENT`.
 7. Do not commit until the effective author and committer identities are correct.
 
@@ -58,7 +58,7 @@ The cycle is iterative. There is no permanently fixed original snapshot: every n
 
 4. Confirm successful viewer execution and inspect the captured output.
 
-### Iterate, compare, and conclude (`-cac-`)
+### Iterate: edit, capture, compare, analyze, and conclude (`-eccac-`)
 
 Repeat the following sequence after each controlled modification:
 

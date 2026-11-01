@@ -1,4 +1,4 @@
-# Development Cycle (`-dc-`)
+# Iterative Development Cycle (`-idc-`)
 
 ## Purpose
 
@@ -27,7 +27,7 @@ For this project, `sh/view_lots.sh` defines the viewer functions. It can be sour
 
 The viewer is deliberately separate from Make rules and batch functions. The data pipeline prepares the viewer's input; the viewer renders that input. Do not treat a missing-input message as a valid report snapshot. Confirm successful execution and inspect the resulting output before accepting the snapshot.
 
-## Iterative development
+## Iterative development (`-migccac-`???)
 
 After the first snapshot, repeat this sequence:
 
@@ -35,7 +35,9 @@ After the first snapshot, repeat this sequence:
 2. **Inspect:** review the relevant source sections, including `make gcf | make ds` when appropriate.
 3. **Generate:** run `make tp` to prepare the viewer data.
 4. **Capture:** invoke the viewer and save its output as the next numbered snapshot.
-5. **Compare, Analyze, and Conclude (`-cac-`):** compare the new snapshot with the immediately preceding snapshot, examine the actual differences, and decide whether the modification produced the intended result.
+5. **Compare:** compare the new snapshot with the immediately preceding snapshot. ???
+6. **Analyze:** examine the actual differences. ???
+7. **Conclude:** decide whether the modification produced the intended result. ???
 6. **Continue:** use the newest snapshot as the baseline for the next modification.
 
 Use three-digit snapshot names in increments of ten: `010.diff`, `020.diff`, `030.diff`, `040.diff`, and so on. Compare consecutive snapshots only: `010` with `020`, then `020` with `030`, then `030` with `040`.
