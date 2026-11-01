@@ -188,7 +188,7 @@ test_pipeline tp : $(sh__librry)
 test_pipeline tp : testing_environment
 test_pipeline tp :
 	source $(r_sh__librry) || exit $$?;                  \
-	test_pipeline ./data/testing_environment || exit $$?; \
+	test_pipeline ${filter %/testing_environment, $(^)}; \
 	:
 #.......................................................................
 testing_environment : ;

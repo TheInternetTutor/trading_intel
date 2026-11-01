@@ -449,15 +449,14 @@ function apply_bundle() {
 function test_pipeline()
 {
   local flag=${1};
-  if [ -f "${flag}" ]; then
+  if [ -f "${flag}" ]; then {
     make plinu > /dev/null || return $?;
-  else
-    {
-      echo "!!! Current mode: production! Execute:";
-      echo "  $ make toggle_debug # td";
-      echo "to switch environment to debugging mode";
-    } > /dev/stderr;
-    return 1;
+  } else {
+    echo "!!! Current mode: production! Execute:";
+    echo "  $ make toggle_debug # td";
+    echo "to switch environment to debugging mode";
+  } > /dev/stderr;
+  return 1;
   fi
   return 0;
 }
