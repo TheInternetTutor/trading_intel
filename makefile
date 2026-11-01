@@ -185,15 +185,10 @@ pli_no_update plinu :
 #h,### tp,| test_pipeline,: test pipeline without updating
 .PHONY : test_pipeline tp
 test_pipeline tp : $(sh__librry)
-test_pipeline tp : view_lots.sh
-test_pipeline tp : view_lots.jsonl
 test_pipeline tp : testing_environment
 test_pipeline tp :
-	source $(r_sh__librry);                              \
-	source ${filter %/view_lots.sh, $(^)}                \
-	${filter %/view_lots.jsonl, $(^)}                    \
-	> /dev/null;                                         \
-	test_pipeline ${filter %/testing_environment, $(^)}; \
+	source $(r_sh__librry) || exit $$?;                  \
+	test_pipeline ./data/testing_environment || exit $$?; \
 	:
 #.......................................................................
 testing_environment : ;
