@@ -2,7 +2,9 @@
 
 ## Purpose
 
-The Development Cycle provides a repeatable method for investigating and changing a codebase. Each iteration produces a numbered output snapshot and compares it with the immediately preceding snapshot. The latest snapshot becomes the baseline for the next iteration; there is no permanently fixed original snapshot.
+The Iterative Development Cycle provides a controlled, repeatable method for investigating and changing a codebase. Each iteration produces a numbered output snapshot and compares it with the immediately preceding snapshot. The latest snapshot becomes the baseline for the next iteration; there is no permanently fixed original snapshot.
+
+The cycle is designed to make cause and effect visible. A small controlled change, consistent execution conditions, and preserved outputs allow the Engineer to distinguish the behavior caused by a modification from unrelated changes or noise. The cycle is independent of the Data Interchange Cycle: development and validation can proceed without transferring repository state after every iteration.
 
 ## Initialization
 
@@ -27,18 +29,20 @@ For this project, `sh/view_lots.sh` defines the viewer functions. It can be sour
 
 The viewer is deliberately separate from Make rules and batch functions. The data pipeline prepares the viewer's input; the viewer renders that input. Do not treat a missing-input message as a valid report snapshot. Confirm successful execution and inspect the resulting output before accepting the snapshot.
 
-## Iterative development (`-migccac-`???)
+## Iterative stages and why they exist
 
-After the first snapshot, repeat this sequence:
+After the first snapshot, repeat the following stages for each controlled modification:
 
-1. **Modify:** make one controlled, purposeful change to the repository.
-2. **Inspect:** review the relevant source sections, including `make gcf | make ds` when appropriate.
-3. **Generate:** run `make tp` to prepare the viewer data.
-4. **Capture:** invoke the viewer and save its output as the next numbered snapshot.
-5. **Compare:** compare the new snapshot with the immediately preceding snapshot. ???
-6. **Analyze:** examine the actual differences. ???
-7. **Conclude:** decide whether the modification produced the intended result. ???
-6. **Continue:** use the newest snapshot as the baseline for the next modification.
+1. **Modify — introduce one intentional variable.** Make one purposeful, logically bounded change. Keeping changes small makes it possible to attribute observed behavior to a known modification rather than a bundle of unrelated edits.
+2. **Inspect — establish what will be executed.** Review the relevant source sections, configuration, dependencies, and input assumptions. Use `make gcf | make ds` when appropriate. This catches accidental edits and helps ensure the next run actually exercises the intended implementation.
+3. **Generate — execute the same processing path.** Run `make tp` to prepare the viewer data under the established test conditions. Repeatable execution is necessary for a meaningful comparison; do not silently change inputs or environment between snapshots.
+4. **Capture — preserve the observed result.** Invoke the viewer and save its output as a new numbered snapshot. The snapshot is evidence of one execution. Preserve prior snapshots rather than overwriting them.
+5. **Compare — identify what changed.** Compare the new snapshot with the immediately preceding snapshot, not with a permanently fixed original. Consecutive comparison isolates the effect of the latest iteration and keeps the reasoning chain incremental.
+6. **Analyze — explain the differences.** Inspect actual changes and classify them as intended, unexpected, missing, reordered, formatting-only, or environmentally induced. Confirm that inputs, filters, execution conditions, viewer options, and formatting were sufficiently consistent for the comparison to be meaningful. A difference is an observation, not yet a conclusion.
+7. **Conclude — make an evidence-based decision.** Decide whether the modification achieved its stated objective. If successful, record the conclusion and proceed. If unsuccessful or inconclusive, preserve the evidence, improve diagnostics, investigate, and revise or roll back as appropriate. Never label unexplained behavior as a pass.
+8. **Continue — carry forward the evidence chain.** Use the newest snapshot as the comparison baseline for the next modification, regardless of whether the previous change was accepted or needs further work. This prevents stale-baseline comparisons and makes each iteration's context explicit.
+
+## Snapshot naming and comparison
 
 Use three-digit snapshot names in increments of ten: `010.diff`, `020.diff`, `030.diff`, `040.diff`, and so on. Compare consecutive snapshots only: `010` with `020`, then `020` with `030`, then `030` with `040`.
 
@@ -48,10 +52,6 @@ The project's comparison command is:
 
 Substitute the two most recent snapshot filenames for each subsequent comparison. Do not create pair-named comparison files unless a separate requirement calls for them; the numbered files identify individual executions.
 
-## Analyze and conclude
+## Completion and limits
 
-Review the actual differences, not merely the comparison command's exit status. Distinguish expected behavior changes from unexpected changes, missing records, ordering changes, formatting noise, and environmental effects. Keep inputs, filters, environment, viewer options, and output formatting consistent between consecutive runs whenever practical.
-
-If the result is inconclusive, improve the diagnostics or isolate the relevant stage, then capture another numbered snapshot. If a change makes the result worse, preserve the snapshots and restore or revise the source using the available version-control history. Do not proceed as though a change passed when its behavior remains unexplained.
-
-A successful comparison is evidence about the behavior exercised by those runs; it is not proof that the entire application is correct or authorization to commit, package, publish, or replace a persistent artifact.
+A successful comparison is evidence about the behavior exercised by those runs; it is not proof that the entire application is correct. Record what was tested, what was not tested, and any remaining uncertainty. Validation does not itself authorize a commit, bundle creation, publication, or replacement of a persistent artifact; those are separate actions governed by authorization and the Data Interchange Cycle.

@@ -1,13 +1,13 @@
 # README — AI Quick Reference
 
-**Purpose:** Compact operational context for an AI joining or resuming work on the Trading Intel repository. This reference is deliberately concise and self-contained so it can be combined with references from other projects without loading the full human-oriented documentation. This quick reference has been generated from the documentation under "README/".
+**Purpose:** Compact operational context for an AI joining or resuming work on the Trading Intel repository. This AI-oriented entry point is generated from `README/000_ai_entry_point.md` with `make grr`. The `README/` directory contains the detailed, human-readable project documentation; those modules are also authoritative working references for AI agents. Read the relevant documents there before performing substantive work.
 
 ## Roles and workflows
 
 - **Architect:** generally the human who owns the repository and directs the work.
 - **Engineer:** generally the AI or another human who inspects, implements, validates, and returns authorized changes.
 - **Data Interchange Cycle (`-dic-`):** transfers or synchronizes repository state between Architect and Engineer.
-- **Development Cycle (`-dc-`):** investigates and changes the code through repeatable runs and consecutive output snapshots.
+- **Iterative Development Cycle (`-idc-`):** investigates and changes the code through repeatable runs and consecutive output snapshots.
 - The cycles are complementary but independent. Do not make one a prerequisite of the other.
 
 ## Data Interchange Cycle (`-dic-`)
@@ -29,11 +29,11 @@ For a new Engineer workspace:
 
 For routine bundle exchange:
 
-- Incoming bundle: inspect and protect local changes; verify with `git bundle verify update.bundle`; compare `sha256sum update.bundle` with `.update.bundle.sha256` when the marker exists; inspect the intended changes. `make ab` applies the bundle and changes the repository, so obtain explicit authorization before running it.
+- Incoming bundle: inspect and protect local changes; verify with `git bundle verify update.bundle`; compare `sha256sum update.bundle` with `.update.bundle.sha256` when the marker exists; inspect the intended changes. `make ab` applies incoming additions, modifications, and rename destinations since the common Git ancestor; it preserves paths absent from the bundle and does not apply deletions. It aborts on staged changes or conflicting local modifications/untracked destination files. Obtain explicit authorization before running it.
 - Outgoing bundle: ensure authorized work is validated and committed; confirm the configured base commit in `sh/lib.sh` exists and is an ancestor of `HEAD`; run `make cgb`; inspect `update.bundle` and its hash. Then upload it additively to the Architect's persistent Library at `/030_trading_intel/`. The Engineer's `/mnt/data/` workspace is private and inaccessible to the Architect; a sandbox link is not delivery. Never overwrite or delete existing Library bundles. Allow duplicate-safe names such as `update(6).bundle`, then verify and report the exact Library path, size, and hash.
 - A complete archive transfer must preserve `.git/` when history is required. After extraction, verify the repository root, `.git/HEAD`, expected latest commit, and working-tree state.
 
-## Development Cycle (`-dc-`)
+## Iterative Development Cycle (`-idc-`)
 
 The cycle is iterative. There is no permanently fixed original snapshot: every new snapshot becomes the baseline for the next iteration. Always compare the two most recent snapshots.
 
@@ -58,11 +58,11 @@ The cycle is iterative. There is no permanently fixed original snapshot: every n
 
 4. Confirm successful viewer execution and inspect the captured output.
 
-### Iterate: edit, capture, compare, analyze, and conclude (`-eccac-`)
+### Iterate: edit, capture, compare, analyze, and conclude
 
 Repeat the following sequence after each controlled modification:
 
-`edit -> make gcf | make ds (as useful) -> make tp -> invoke viewer -> capture next snapshot -> -cac- previous vs. next`
+`edit -> inspect source -> make tp -> invoke viewer -> capture next snapshot -> compare previous vs. next`
 
 Use three-digit snapshot numbers in increments of ten: `010.diff`, `020.diff`, `030.diff`, `040.diff`, and so on. Compare consecutive snapshots only. Example:
 
@@ -70,7 +70,7 @@ Use three-digit snapshot numbers in increments of ten: `010.diff`, `020.diff`, `
 
 Then compare `020.diff` with `030.diff`, then `030.diff` with `040.diff`, and continue. Do not overwrite earlier snapshots or create pair-named comparison files unless explicitly required.
 
-During `-cac-`, inspect actual differences; distinguish intended behavior changes from unexpected changes, missing records, ordering changes, formatting noise, and environmental effects. Keep inputs, filters, environment, viewer options, and formatting consistent where practical. If the result is inconclusive, improve diagnostics and capture another snapshot. If a change worsens behavior, preserve the evidence and restore or revise the source. The newest snapshot becomes the baseline for the next iteration.
+During comparison and analysis, inspect actual differences; distinguish intended behavior changes from unexpected changes, missing records, ordering changes, formatting noise, and environmental effects. Keep inputs, filters, environment, viewer options, and formatting consistent where practical. If the result is inconclusive, improve diagnostics and capture another snapshot. If a change worsens behavior, preserve the evidence and restore or revise the source. The newest snapshot becomes the baseline for the next iteration.
 
 ## Safety and working rules
 
@@ -89,7 +89,9 @@ During `-cac-`, inspect actual differences; distinguish intended behavior change
 - `py/` — Python processing code.
 - `data/` — inventory data and test fixtures.
 - `work_items/open/` and `work_items/completed/` — work-item tracking.
-- `README/` — detailed, human-oriented modular documentation.
+- `README/` — detailed modular documentation for humans and AI agents; consult the relevant documents before substantive work.
 - `.git/` — repository history and metadata; preserve when transferring the complete repository.
+
+**Documentation source:** maintain the AI-oriented content in `README/000_ai_entry_point.md` and regenerate this root file with `make grr`. The numbered documents under `README/` contain the detailed explanations, procedures, and rationale; `README/010_overview.md` explains the documentation hierarchy.
 
 **Path assumption:** current Makefile path logic expects the checkout directory to be named `trading_intel` directly under its workspace root. Verify the actual checkout location and configured data paths before running the pipeline or viewer.

@@ -343,13 +343,16 @@ function toggle_debug_environment()
 }
 
 #-----------------------------------------------------------------------
-# Apply the fixed incoming Git bundle to this repository's root.
-# Source files are copied from the bundle commit, and its message is used
-# for a local commit. The bundle's synthetic ancestry is not merged.
+# Apply only the incoming bundle's changes since the common Git ancestor.
+# Preserve local-only paths and incoming rename sources; never apply deletions.
+# The incoming message/author metadata is retained without merging its ancestry.
 function apply_bundle() {
-  local dir_root dir_extract fl_bundle fl_hash fl_hash_marker old_hash
-  local fl_message tmp_message commit_id fl_file rel_file
+  local dir_root fl_bundle fl_hash fl_hash_marker old_hash
+  local fl_message commit_id base_commit tmp_root tmp_payload tmp_changes tmp_message marker_tmp
   local author_name author_email author_date
+  local change_status old_path rel_file source_file target_file
+  local tracked_status
+  local -a apply_paths=()
   old_hash=''
 
   dir_root=$(git rev-parse --show-toplevel) || return 1
@@ -384,7 +387,13 @@ function apply_bundle() {
     echo "abtt: could not import bundle commit." >&2
     return 1
   fi
+
   commit_id=$(git -C "${dir_root}" rev-parse 'FETCH_HEAD^{commit}') || return 1
+  base_commit=$(git -C "${dir_root}" merge-base HEAD "${commit_id}") || {
+    echo "abtt: incoming bundle has no common ancestor with this repository." >&2
+    return 1
+  }
+
   fl_message=$(git -C "${dir_root}" show -s --format=%B "${commit_id}") || return 1
   author_name=$(git -C "${dir_root}" show -s --format=%an "${commit_id}") || return 1
   author_email=$(git -C "${dir_root}" show -s --format=%ae "${commit_id}") || return 1
@@ -397,52 +406,151 @@ function apply_bundle() {
     fl_message='Apply incoming source bundle'
   fi
 
-  dir_extract=$(mktemp -d "${dir_root}/.bundle_extract.XXXXXX") || return 1
-  if ! git -C "${dir_root}" archive "${commit_id}" | tar -x -C "${dir_extract}"; then
-    rm -rf -- "${dir_extract}"
-    echo "abtt: could not expand bundle commit." >&2
+  tmp_root=$(mktemp -d) || return 1
+  tmp_payload="${tmp_root}/payload"
+  tmp_changes="${tmp_root}/changes"
+  tmp_message="${tmp_root}/message"
+  mkdir -p -- "${tmp_payload}" || {
+    rm -rf -- "${tmp_root}"
+    return 1
+  }
+
+  # The merge base defines the bundle's incremental scope. Only incoming
+  # additions, modifications, and rename destinations are candidates for copy.
+  if ! git -C "${dir_root}" diff --name-status -z --find-renames \
+       "${base_commit}" "${commit_id}" > "${tmp_changes}"; then
+    rm -rf -- "${tmp_root}"
+    echo "abtt: could not determine incoming bundle changes." >&2
     return 1
   fi
 
-  # Copy the files supplied by the bundle into the project root.
-  while IFS= read -r -d '' fl_file; do
-    rel_file=${fl_file#"${dir_extract}/"}
-    mkdir -p "${dir_root}/$(dirname -- "${rel_file}")" || {
-      rm -rf -- "${dir_extract}"
+  while IFS= read -r -d '' change_status; do
+    case "${change_status}" in
+      R*|C*)
+        IFS= read -r -d '' old_path || {
+          rm -rf -- "${tmp_root}"
+          echo "abtt: malformed rename/copy entry in incoming diff." >&2
+          return 1
+        }
+        IFS= read -r -d '' rel_file || {
+          rm -rf -- "${tmp_root}"
+          echo "abtt: malformed rename/copy destination in incoming diff." >&2
+          return 1
+        }
+        ;;
+      D*)
+        # Incoming deletions are intentionally non-destructive. Keep the
+        # receiving repository's existing path until removal is authorized.
+        IFS= read -r -d '' old_path || {
+          rm -rf -- "${tmp_root}"
+          echo "abtt: malformed deletion entry in incoming diff." >&2
+          return 1
+        }
+        continue
+        ;;
+      A*|M*|T*)
+        IFS= read -r -d '' rel_file || {
+          rm -rf -- "${tmp_root}"
+          echo "abtt: malformed file entry in incoming diff." >&2
+          return 1
+        }
+        ;;
+      *)
+        rm -rf -- "${tmp_root}"
+        echo "abtt: unsupported change type in incoming diff: ${change_status}" >&2
+        return 1
+        ;;
+    esac
+
+    # This marker describes the receiving repository's own bundle history;
+    # it must never be copied from the sending repository.
+    [[ "${rel_file}" == '.update.bundle.sha256' ]] && continue
+    apply_paths+=("${rel_file}")
+  done < "${tmp_changes}"
+
+  # Preflight every destination before changing any source file.
+  for rel_file in "${apply_paths[@]}"; do
+    target_file="${dir_root}/${rel_file}"
+    if git -C "${dir_root}" ls-files --error-unmatch -- "${rel_file}" >/dev/null 2>&1; then
+      tracked_status=$(git -C "${dir_root}" status --porcelain=v1 --untracked-files=all -- "${rel_file}") || {
+        rm -rf -- "${tmp_root}"
+        return 1
+      }
+      if [[ -n "${tracked_status}" ]]; then
+        rm -rf -- "${tmp_root}"
+        printf 'abtt: local changes conflict with incoming file; leaving repository untouched: %s\n' "${rel_file}" >&2
+        return 1
+      fi
+    elif [[ -e "${target_file}" || -L "${target_file}" ]]; then
+      rm -rf -- "${tmp_root}"
+      printf 'abtt: incoming file would overwrite an untracked local file; leaving repository untouched: %s\n' "${rel_file}" >&2
       return 1
-    }
-    cp -p -- "${fl_file}" "${dir_root}/${rel_file}" || {
-      rm -rf -- "${dir_extract}"
+    fi
+  done
+
+  if ((${#apply_paths[@]})); then
+    if ! (set -o pipefail; git -C "${dir_root}" archive --format=tar "${commit_id}" -- "${apply_paths[@]}" \
+         | tar -xf - -C "${tmp_payload}"); then
+      rm -rf -- "${tmp_root}"
+      echo "abtt: could not extract incoming changed files." >&2
       return 1
-    }
-    git -C "${dir_root}" add -- "${rel_file}" || {
-      rm -rf -- "${dir_extract}"
-      return 1
-    }
-  done < <(find "${dir_extract}" -type f -print0)
-  rm -rf -- "${dir_extract}"
+    fi
+
+    for rel_file in "${apply_paths[@]}"; do
+      source_file="${tmp_payload}/${rel_file}"
+      target_file="${dir_root}/${rel_file}"
+      if [[ ! -e "${source_file}" && ! -L "${source_file}" ]]; then
+        rm -rf -- "${tmp_root}"
+        printf 'abtt: incoming file is missing from its commit: %s\n' "${rel_file}" >&2
+        return 1
+      fi
+      mkdir -p -- "${dir_root}/$(dirname -- "${rel_file}")" || {
+        rm -rf -- "${tmp_root}"
+        return 1
+      }
+      cp -pP -- "${source_file}" "${target_file}" || {
+        rm -rf -- "${tmp_root}"
+        printf 'abtt: could not install incoming file: %s\n' "${rel_file}" >&2
+        return 1
+      }
+      git -C "${dir_root}" add -f -- "${rel_file}" || {
+        rm -rf -- "${tmp_root}"
+        printf 'abtt: could not stage incoming file: %s\n' "${rel_file}" >&2
+        return 1
+      }
+    done
+  fi
 
   if ! git -C "${dir_root}" diff --cached --quiet; then
-    tmp_message=$(mktemp) || return 1
-    printf '%s\n' "${fl_message}" > "${tmp_message}"
-    # Preserve the incoming commit's author identity and date. Git still uses
-    # the receiving repository's configured identity for the committer.
+    printf '%s\n' "${fl_message}" > "${tmp_message}" || {
+      rm -rf -- "${tmp_root}"
+      return 1
+    }
+    # Preserve incoming author identity/date; the receiving repository's
+    # configured identity remains the committer.
     if ! GIT_AUTHOR_NAME="${author_name}" \
          GIT_AUTHOR_EMAIL="${author_email}" \
          GIT_AUTHOR_DATE="${author_date}" \
          git -C "${dir_root}" commit --file="${tmp_message}"; then
-      rm -f -- "${tmp_message}"
+      rm -rf -- "${tmp_root}"
       echo "abtt: commit failed; bundle marker was not updated." >&2
       return 1
     fi
-    rm -f -- "${tmp_message}"
   else
-    echo "abtt: source files already match this bundle; no new commit needed."
+    echo "abtt: no applicable source changes; no new commit needed."
   fi
 
-  printf '%s\n' "${fl_hash}" > "${fl_hash_marker}.tmp" || return 1
-  mv -f -- "${fl_hash_marker}.tmp" "${fl_hash_marker}" || return 1
-  echo "abtt: applied ${commit_id:0:12}; project sources updated."
+  rm -rf -- "${tmp_root}"
+  marker_tmp=$(mktemp "${fl_hash_marker}.tmp.XXXXXX") || return 1
+  if ! printf '%s\n' "${fl_hash}" > "${marker_tmp}"; then
+    rm -f -- "${marker_tmp}"
+    return 1
+  fi
+  mv -f -- "${marker_tmp}" "${fl_hash_marker}" || {
+    rm -f -- "${marker_tmp}"
+    return 1
+  }
+  echo "abtt: applied ${commit_id:0:12}; incoming changes synchronized without deleting local-only files."
 }
 
 #-----------------------------------------------------------------------
@@ -466,6 +574,7 @@ function create_git_bundle()
 {
   local bundle='update.bundle'
   local base='056b2aa4d60d5be5be9c5d40bc3e8da0eab83f79'
+  local tmp_bundle status_output
 
   echo "# Creating Git bundle ..."
   test -n "${base}" || {
@@ -480,16 +589,68 @@ function create_git_bundle()
     echo "ERROR: Bundle base commit is not an ancestor of HEAD." >&2
     return 1
   }
-  git bundle create "${bundle}" HEAD "^${base}" || {
+
+  # A bundle contains committed history, not working-tree edits. Ignore only
+  # the receiver-local checksum marker; all other local changes must be dealt
+  # with explicitly so the generated artifact cannot silently omit work.
+  status_output=$(git status --porcelain=v1 --untracked-files=all -- . ':!.update.bundle' ':!.update.bundle.sha256') || return 1
+  if [[ -n "${status_output}" ]]; then
+    echo "ERROR: Uncommitted source changes exist; commit or preserve them before creating the bundle." >&2
+    printf '%s\n' "${status_output}" >&2
+    return 1
+  fi
+
+  tmp_bundle=$(mktemp "${bundle}.tmp.XXXXXX") || return 1
+  if ! git bundle create "${tmp_bundle}" HEAD "^${base}"; then
+    rm -f -- "${tmp_bundle}"
     echo "ERROR: Git bundle creation failed." >&2
     return 1
-  }
-  git bundle verify "${bundle}" || {
+  fi
+  if ! git bundle verify "${tmp_bundle}"; then
+    rm -f -- "${tmp_bundle}"
     echo "ERROR: Git bundle verification failed." >&2
     return 1
-  }
+  fi
+  if ! mv -f -- "${tmp_bundle}" "${bundle}"; then
+    rm -f -- "${tmp_bundle}"
+    echo "ERROR: Could not publish the verified bundle as ${bundle}." >&2
+    return 1
+  fi
   echo "# Bundle created and verified: ${bundle}"
 }
 
 #-----------------------------------------------------------------------
 # declare -F;
+
+#-----------------------------------------------------------------------
+# Generate the AI-oriented root README from its maintained source under README/.
+function generate_root_readme() {
+  local dir_root source_file target_file tmp_file
+
+  dir_root=$(git rev-parse --show-toplevel) || return 1
+  source_file="${dir_root}/README/000_ai_entry_point.md"
+  target_file="${dir_root}/README.md"
+
+  if [[ ! -f "${source_file}" ]]; then
+    printf 'grr: README source not found: %s\n' "${source_file}" >&2
+    return 1
+  fi
+
+  tmp_file=$(mktemp "${target_file}.tmp.XXXXXX") || return 1
+  if ! cat -- "${source_file}" > "${tmp_file}"; then
+    rm -f -- "${tmp_file}"
+    return 1
+  fi
+
+  if cmp -s -- "${tmp_file}" "${target_file}"; then
+    rm -f -- "${tmp_file}"
+    echo "grr: root README is already current."
+    return 0
+  fi
+
+  if ! mv -f -- "${tmp_file}" "${target_file}"; then
+    rm -f -- "${tmp_file}"
+    return 1
+  fi
+  echo "grr: generated ${target_file} from ${source_file}."
+}

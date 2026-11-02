@@ -102,30 +102,24 @@ infol :
 #h,### dfm,| display_file_manifest,: display project file manifest
 .DEFAULT : diplay_file_manifest dfm dfmf
 diplay_file_manifest dfm dfmf :
-	{                                                    \
-		find . -type f                                     \
-		| grep --invert-match                              \
-		--regexp=/.git/                                    \
-		--regexp=/@/                                       \
-		--regexp=ver                                       \
-		--regexp=/data/                                    \
-		--regexp=/repo/                                    \
-		--regexp=/notes/                                   \
-		--regexp=/pipeline_mk/                             \
-		--regexp=/borrar/                                  \
-		--regexp=/sh/clean_output.sh                       \
-		--regexp=/sh/refactor_identifiers.*                \
-		--regexp=/pipeline_mk.mk                           \
-		;                                                  \
-		find . -type f                                     \
-		| grep                                             \
-		--regexp=/data/.*_sample.*                         \
-		--regexp=/notes/errors.txt                         \
-		;                                                  \
-	}                                                    \
-	${call execute_on_rule, dfmf, > files.manifest}      \
-# 		--regexp=files.manifest                           \
-# 	| sort                                              \
+	find . -type f -print \
+	| awk ' \
+	  /^\.\/\.git\//       { next } \
+	  /^\.\/@\//            { next } \
+	  /^\.\/README_v01\//   { next } \
+	  /^\.\/data\//          { next } \
+	  /^\.\/repo\//          { next } \
+	  /^\.\/notes\//         { next } \
+	  /^\.\/mk\/pipeline_mk\.mk/ { next } \
+	  /^\.\/borrar\//        { next } \
+	  /^\.\/sh\/clean_output\.sh/ { next } \
+	  /^\.\/sh\/refactor_identifiers/ { next } \
+	  /^\.\/update\.bundle/ { next } \
+	  { print } \
+	' \
+	| sort \
+	${call execute_on_rule, dfmf, > files.manifest}; \
+	:
 
 # Consider:
 # $ make dlp pld -pn | fmt -w 1 | tr -d ':;' | grep '/trading_intel/' | sort | uniq | grep -v '/data' | grep -e '\.mk' -e '\.py' -e '\.sh' -e '\.jq' | nl
@@ -211,4 +205,13 @@ xxx_yyy_zzz xyz :
 .DEFAULT :
 	echo "*** ERROR: Unknown target '$(@)'."; \
 	echo "*** Try: make help"; \
+	:
+
+#=======================================================================
+#h,### grr,| generate_root_readme,: generate the AI-oriented root README from README/
+.PHONY : generate_root_readme grr
+generate_root_readme grr : $(sh__librry) README/000_ai_entry_point.md
+generate_root_readme grr :
+	source $(r_sh__librry) || exit $$?; \
+	generate_root_readme; \
 	:
