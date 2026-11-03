@@ -121,6 +121,35 @@ diplay_file_manifest dfm dfmf :
 	${call execute_on_rule, dfmf, > files.manifest}; \
 	:
 
+#=======================================================================
+#x,### dfm_v1,| display_file_manifest,: display project file manifest
+.DEFAULT : diplay_file_manifest_1 dfm_1 dfmf_1
+diplay_file_manifest_1 dfm_1 dfmf_1 :
+	{                                                    \
+		find . -type f                                     \
+		| grep --invert-match                              \
+		--regexp=/.git/                                    \
+		--regexp=/@/                                       \
+		--regexp=ver                                       \
+		--regexp=/data/                                    \
+		--regexp=/repo/                                    \
+		--regexp=/notes/                                   \
+		--regexp=/pipeline_mk/                             \
+		--regexp=/borrar/                                  \
+		--regexp=/sh/clean_output.sh                       \
+		--regexp=/sh/refactor_identifiers.*                \
+		--regexp=/pipeline_mk.mk                           \
+		;                                                  \
+		find . -type f                                     \
+		| grep                                             \
+		--regexp=/data/.*_sample.*                         \
+		--regexp=/notes/errors.txt                         \
+		;                                                  \
+	}                                                    \
+	${call execute_on_rule, dfmf, > files.manifest}      \
+# 		--regexp=files.manifest                           \
+# 	| sort                                              \
+
 # Consider:
 # $ make dlp pld -pn | fmt -w 1 | tr -d ':;' | grep '/trading_intel/' | sort | uniq | grep -v '/data' | grep -e '\.mk' -e '\.py' -e '\.sh' -e '\.jq' | nl
 # $ make dlp pld -n | fmt -w 1 | sort | uniq | grep '/finanz' | grep -v '/data/' | nl
@@ -158,8 +187,8 @@ toggle_debug td : $(jsn_blivep)
 toggle_debug td :
 	echo "# Toggling debugging ...";               \
 	source $(r_sh__librry);                        \
-	toggle_debug $(r_csv_bolots) || exit $$?;      \
-	toggle_debug $(r_jsn_blivep) || exit $$?;      \
+	toggle_debug $(r_csv_bolots) || exit $${?};    \
+	toggle_debug $(r_jsn_blivep) || exit $${?};    \
 	toggle_debug_environment;                      \
 	touch -m ./data/*.*;                           \
 	:
@@ -181,7 +210,7 @@ pli_no_update plinu :
 test_pipeline tp : $(sh__librry)
 test_pipeline tp : testing_environment
 test_pipeline tp :
-	source $(r_sh__librry) || exit $$?;                  \
+	source $(r_sh__librry) || exit $${?};                \
 	test_pipeline ${filter %/testing_environment, $(^)}; \
 	:
 #.......................................................................
@@ -208,10 +237,11 @@ xxx_yyy_zzz xyz :
 	:
 
 #=======================================================================
-#h,### grr,| generate_root_readme,: generate the AI-oriented root README from README/
+#h,### grr,| generate_root_readme,: generate the AI root README
 .PHONY : generate_root_readme grr
-generate_root_readme grr : $(sh__librry) README/000_ai_entry_point.md
+generate_root_readme grr : $(sh__librry)
+generate_root_readme grr : README/000_ai_entry_point.md
 generate_root_readme grr :
-	source $(r_sh__librry) || exit $$?; \
-	generate_root_readme; \
+	source $(r_sh__librry) || exit $${?};          \
+	generate_root_readme;                          \
 	:

@@ -620,9 +620,6 @@ function create_git_bundle()
 }
 
 #-----------------------------------------------------------------------
-# declare -F;
-
-#-----------------------------------------------------------------------
 # Generate the AI-oriented root README from its maintained source under README/.
 function generate_root_readme() {
   local dir_root source_file target_file tmp_file
@@ -654,3 +651,6 @@ function generate_root_readme() {
   fi
   echo "grr: generated ${target_file} from ${source_file}."
 }
+
+#-----------------------------------------------------------------------
+# declare -F;
