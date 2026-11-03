@@ -189,6 +189,7 @@ create_git_bundle cgb :
 .PHONY : zip_repository zr
 zip_repository zr :
 	echo "# Archiving code-base and git-database:";      \
+	rm --force trading_intel.zip;                        \
 	git ls-files > files.manifest;                       \
 	find .git/ > git.manifest;                           \
 	cat files.manifest git.manifest                      \
