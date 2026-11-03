@@ -574,6 +574,36 @@ function create_git_bundle()
 {
   local bundle='update.bundle'
   local base='056b2aa4d60d5be5be9c5d40bc3e8da0eab83f79'
+
+  echo "# Creating Git bundle ..."
+  test -n "${base}" || {
+    echo "ERROR: Bundle base commit is not set." >&2
+    return 1
+  }
+  git cat-file -e "${base}^{commit}" || {
+    echo "ERROR: Bundle base commit not found: ${base}" >&2
+    return 1
+  }
+  git merge-base --is-ancestor "${base}" HEAD || {
+    echo "ERROR: Bundle base commit is not an ancestor of HEAD." >&2
+    return 1
+  }
+  git bundle create "${bundle}" HEAD "^${base}" || {
+    echo "ERROR: Git bundle creation failed." >&2
+    return 1
+  }
+  git bundle verify "${bundle}" || {
+    echo "ERROR: Git bundle verification failed." >&2
+    return 1
+  }
+  echo "# Bundle created and verified: ${bundle}"
+}
+
+#-----------------------------------------------------------------------
+function create_git_bundle_v02()
+{
+  local bundle='update.bundle'
+  local base='056b2aa4d60d5be5be9c5d40bc3e8da0eab83f79'
   local tmp_bundle status_output
 
   echo "# Creating Git bundle ..."
