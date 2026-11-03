@@ -185,9 +185,9 @@ create_git_bundle cgb :
 	:
 
 #=======================================================================
-#h,### zr,| zip_repository,: create a zip with code-base + git-database
-.PHONY : zip_repository zr
-zip_repository zr :
+#x,### zr,| zip_repository,: create a zip with code-base + git-database
+.PHONY : zip_repository_1 zr_1
+zip_repository_1 zr_1 :
 	echo "# Archiving code-base and git-database:";      \
 	rm --force trading_intel.zip;                        \
 	git ls-files > files.manifest;                       \
@@ -195,6 +195,16 @@ zip_repository zr :
 	cat files.manifest git.manifest                      \
 	| zip -@ trading_intel.zip;                          \
 	rm --force git.manifest;                             \
+	:
+
+#=======================================================================
+#h,### zr,| zip_repository,: create a zip with code-base + git-database
+.PHONY : zip_repository zr
+zip_repository zr : $(sh__librry)
+zip_repository zr :
+	echo "# Archiving code-base and git-database:";      \
+	source $(r_sh__librry) || exit $${?};                \
+	zip_repository;                                      \
 	:
 
 #=======================================================================

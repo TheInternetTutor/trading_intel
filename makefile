@@ -99,30 +99,7 @@ infol :
 	:
 
 #=======================================================================
-#h,### dfm,| display_file_manifest,: display project file manifest
-.DEFAULT : diplay_file_manifest dfm dfmf
-diplay_file_manifest dfm dfmf :
-	find . -type f -print \
-	| awk ' \
-	  /^\.\/\.git\//       { next } \
-	  /^\.\/@\//            { next } \
-	  /^\.\/README_v01\//   { next } \
-	  /^\.\/data\//          { next } \
-	  /^\.\/repo\//          { next } \
-	  /^\.\/notes\//         { next } \
-	  /^\.\/mk\/pipeline_mk\.mk/ { next } \
-	  /^\.\/borrar\//        { next } \
-	  /^\.\/sh\/clean_output\.sh/ { next } \
-	  /^\.\/sh\/refactor_identifiers/ { next } \
-	  /^\.\/update\.bundle/ { next } \
-	  { print } \
-	' \
-	| sort \
-	${call execute_on_rule, dfmf, > files.manifest}; \
-	:
-
-#=======================================================================
-#x,### dfm_v1,| display_file_manifest,: display project file manifest
+#x,### dfm,| display_file_manifest,: display project file manifest
 .DEFAULT : diplay_file_manifest_1 dfm_1 dfmf_1
 diplay_file_manifest_1 dfm_1 dfmf_1 :
 	{                                                    \
@@ -153,6 +130,29 @@ diplay_file_manifest_1 dfm_1 dfmf_1 :
 # Consider:
 # $ make dlp pld -pn | fmt -w 1 | tr -d ':;' | grep '/trading_intel/' | sort | uniq | grep -v '/data' | grep -e '\.mk' -e '\.py' -e '\.sh' -e '\.jq' | nl
 # $ make dlp pld -n | fmt -w 1 | sort | uniq | grep '/finanz' | grep -v '/data/' | nl
+
+#=======================================================================
+#h,### dfm,| display_file_manifest,: display project file manifest
+.DEFAULT : diplay_file_manifest dfm dfmf
+diplay_file_manifest dfm dfmf :
+	find . -type f -print \
+	| awk ' \
+	  /^\.\/\.git\//                  { next }           \
+	  /^\.\/@\//                      { next }           \
+	  /^\.\/README_v01\//             { next }           \
+	  /^\.\/data\//                   { next }           \
+	  /^\.\/repo\//                   { next }           \
+	  /^\.\/notes\//                  { next }           \
+	  /^\.\/mk\/pipeline_mk\.mk/      { next }           \
+	  /^\.\/borrar\//                 { next }           \
+	  /^\.\/sh\/clean_output\.sh/     { next }           \
+	  /^\.\/sh\/refactor_identifiers/ { next }           \
+	  /^\.\/update\.bundle/           { next }           \
+	  { print }                                          \
+	'                                                    \
+	| sort                                               \
+	${call execute_on_rule, dfmf, > files.manifest};     \
+	:
 
 #=======================================================================
 #h,### ite,| is_test_enviroment,: environment in test mode? true/false

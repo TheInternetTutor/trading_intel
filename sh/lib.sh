@@ -5,6 +5,59 @@
 # Shell Library
 
 #-----------------------------------------------------------------------
+zip_repository() {
+    local project_dir archive_name tmp_root tmp_project tmp_tar
+    local tmp_zip tmp_dir
+
+    # Project name = current directory name
+    project_dir="$(basename "$PWD")"
+    archive_name="${project_dir}.zip"
+
+    # Determine operating system temporary directory
+    tmp_root="${TMP:-${TEMP:-${TMPDIR:-/tmp}}}"
+
+    # Create isolated temporary workspace
+    tmp_dir="$(mktemp -d "${tmp_root%/}/${project_dir}.XXXXXX")" || return 1
+
+    tmp_project="$tmp_dir/$project_dir"
+    tmp_tar="$tmp_dir/$project_dir.tar"
+    tmp_zip="$PWD/.${archive_name}.tmp"
+
+    # Always clean up temporary files
+    trap 'rm -rf -- "$tmp_dir"; rm -f -- "$tmp_zip"' RETURN
+
+    mkdir -p "$tmp_project" || return 1
+
+    echo "# Creating file manifests..."
+
+    git ls-files -z > "$tmp_dir/files.manifest" || return 1
+    find .git \( -type f -o -type l \) -print0 \
+        > "$tmp_dir/git.manifest" || return 1
+
+    echo "# Assembling project archive..."
+
+    tar --null -cf "$tmp_tar" \
+        -C "$PWD" \
+        -T "$tmp_dir/files.manifest" \
+        -T "$tmp_dir/git.manifest" || return 1
+
+    tar -xf "$tmp_tar" -C "$tmp_project" || return 1
+
+    echo "# Creating ZIP archive..."
+
+    (
+        cd "$tmp_dir" &&
+        zip -qr "$tmp_zip" "$project_dir/"
+    ) || return 1
+
+    mv -f -- "$tmp_zip" "$PWD/$archive_name" || return 1
+
+    echo "# Archive created: $PWD/$archive_name"
+
+    return 0;
+}
+
+#-----------------------------------------------------------------------
 function check_file_age() {
   local fl_output="${1:-./data/SOME_FILE.ext}";
   local tlength=${2:-$((24*60*60))}
