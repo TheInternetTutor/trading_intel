@@ -23,8 +23,8 @@ For a new Engineer workspace:
 2. Verify `git rev-parse --show-toplevel`, `git status --short`, and `git log -1`.
 3. Run `make itd` to initialize temporary refresh-trigger dependencies before Make targets that rely on them.
 4. Run `make ugu` to remove repository-local identity overrides before configuring the global identity; local values can otherwise override the global values.
-5. Configure the Engineer's own global Git identity in the Engineer's execution environment. When the Engineer is ChatGPT, use `git config --global user.name "ChatGPT"` and `git config --global user.email "chatgpt@users.noreply.github.com"`. Never configure the Architect's personal name or email as the Engineer's identity. Another Engineer must use its own designated identity.
-6. Verify identity and configuration origin with `git config --show-origin --get user.name`, `git config --show-origin --get user.email`, `git var GIT_AUTHOR_IDENT`, and `git var GIT_COMMITTER_IDENT`. Confirm that the effective values identify the Engineer, not the Architect.
+5. Configure your own global Git identity in your development environment. Set `user.name` and `user.email` to the identity you use when contributing, whether you are a human developer or an AI operating independently. For example: `git config --global user.name "Your Name"` and `git config --global user.email "you@example.com"`. Use an identity that belongs to you; never attribute commits to another person or contributor.
+6. Verify identity and configuration origin with `git config --show-origin --get user.name`, `git config --show-origin --get user.email`, `git var GIT_AUTHOR_IDENT`, and `git var GIT_COMMITTER_IDENT`. Confirm that the effective values identify you as the contributor, not another person.
 7. Do not commit until the effective author and committer identities are correct.
 
 For routine bundle exchange:
