@@ -40,6 +40,14 @@ $(c_jsn_rawlot) ::                     \
 # 	}                                                    \
 
 #=======================================================================
+# compatible with jq >= v.1.8+
+# ...
+# jq
+# 	--library-path ${dir $(r_jq__librry)}pipeline_jq
+# 	--library-path ${dir $(r_jq__librry)}
+# 	--compact-output
+# ...
+# compatible with jq < v.1.8
 define jq_pipeline_stages =
 ${strip $()
 	echo "# JQ pipeline:";               
@@ -48,8 +56,8 @@ ${strip $()
 	echo "--- ${dir $(r_jq__librry)}pipeline_jq";               
 	mkdir --parent ${dir $(@)}stage/;
 	jq
-		--library-path ${dir $(r_jq__librry)}pipeline_jq
-		--library-path ${dir $(r_jq__librry)}
+		-L ${dir $(r_jq__librry)}pipeline_jq
+		-L ${dir $(r_jq__librry)}
 	  --compact-output
 	  --slurp
 	  --slurpfile live $(c_jsn_blivep)

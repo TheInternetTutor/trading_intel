@@ -1,7 +1,5 @@
 # Repair and Verify jq Filter Line Endings
 
-**Status:** Open
-
 ## Purpose
 
 Resolve jq parsing errors caused by carriage-return characters in `.jq` files and verify the affected filters against project sample data.

@@ -5,7 +5,6 @@ This directory contains independently maintained work-item documents for Trading
 ## Current items
 
 - [010 — Prevent invalid prices from entering inventory calculations](010_prevent_invalid_inventory_prices.md)
-- [020 — Repair and verify jq filter line endings](020_repair_jq_line_endings.md)
 - [030 — Restore and verify market-open detection](030_restore_market_open_detection.md)
 - [040 — Align Git bundle creation and application](040_align_git_bundle_workflows.md)
 - [050 — Separate the source manifest from Git internals](050_exclude_git_internals_from_manifest.md)
@@ -14,7 +13,6 @@ This directory contains independently maintained work-item documents for Trading
 - [080 — Define the Git bundle baseline and roll-up procedure](080_define_git_bundle_baseline_and_rollup.md)
 - [261103 14:17 — Makefile failure propagation](261103_1417_makefile_failure_propagation.md)
 - [261103 21:09 — jq library path option compatibility](261103_2109_library_Path_option_compatibility.md)
-- [261103 21:10 — jq script line-ending compatibility](261103_2110_script_line_ending_compatibility.md)
 - [261103 21:11 — CSV parsing compatibility between GNU AWK and Mawk](261103_2111_library_Path_option_compatibility.md)
 - [261104 20:20 — Define codebase scope and inspection boundaries](261104_2020_define_codebase_scope_and_inspection_boundaries.md)
 

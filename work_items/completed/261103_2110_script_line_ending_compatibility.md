@@ -21,6 +21,3 @@ Alternatively, use Git's line-ending configuration and normalization mechanisms.
 - Run `git diff --check`.
 - Execute the relevant jq filters.
 - Ensure that normalization does not introduce unintended source changes.
-
-### Status
-Previously normalized. Verify that the correction exists in the current repository.

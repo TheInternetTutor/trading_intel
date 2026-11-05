@@ -118,6 +118,7 @@ data/jsonl/
 data/psv/
 data/stage/
 notes/
+z_update_bundle/
 
 data/*
 !data/ibkr_lot_inventory.csv

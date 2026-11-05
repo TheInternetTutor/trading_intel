@@ -20,6 +20,3 @@ Example:
 - Confirm no remaining occurrences of `--library-path`.
 - Execute the affected jq commands.
 - Verify successful execution and correct module resolution.
-
-### Status
-Previously corrected. Verify that the correction exists in the current repository.
