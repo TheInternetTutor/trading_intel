@@ -57,6 +57,59 @@ zip_repository() {
     return 0;
 }
 
+
+#-----------------------------------------------------------------------
+# Normalize tracked files with the requested extension to Unix LF endings.
+# Usage: normalize_line_endings <extension>
+normalize_line_endings() {
+    local extension file file_list processed=0 failures=0
+
+    if (( $# != 1 )); then
+        printf 'Usage: normalize_line_endings <extension>\n' >&2
+        return 2
+    fi
+
+    extension=${1#.}
+    if [[ -z "$extension" || "$extension" == */* || "$extension" == *[![:alnum:]_-]* ]]; then
+        printf 'Invalid file extension: %s\n' "$1" >&2
+        return 2
+    fi
+
+    git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
+        printf 'Error: current directory is not inside a Git working tree.\n' >&2
+        return 1
+    }
+
+    file_list=$(mktemp) || return 1
+    if ! git ls-files -z > "$file_list"; then
+        rm -f -- "$file_list"
+        printf 'Error: unable to enumerate tracked files.\n' >&2
+        return 1
+    fi
+
+    while IFS= read -r -d '' file; do
+        [[ "$file" == *."$extension" ]] || continue
+
+        if [[ ! -f "$file" || -L "$file" ]]; then
+            printf 'Skipping unavailable or symbolic-link file: %q\n' "$file" >&2
+            failures=1
+            continue
+        fi
+
+        if perl -pi -e 's/\r\n/\n/g' -- "$file"; then
+            printf 'Processed: %q\n' "$file"
+            ((processed += 1))
+        else
+            printf 'Error normalizing: %q\n' "$file" >&2
+            failures=1
+        fi
+    done < "$file_list"
+
+    rm -f -- "$file_list"
+    printf 'Processed %d tracked .%s file(s).\n' "$processed" "$extension"
+    return "$failures"
+}
+
 #-----------------------------------------------------------------------
 function check_file_age() {
   local fl_output="${1:-./data/SOME_FILE.ext}";
@@ -400,7 +453,10 @@ function toggle_debug_environment()
 
 #-----------------------------------------------------------------------
 # Apply only the incoming bundle's changes since the common Git ancestor.
-# Preserve local-only paths and incoming rename sources; never apply deletions.
+# Default behavior applies deletions and completes renames/moves by removing
+# their old paths. To restore the former preservation behavior, comment out
+# the two remove_paths+=(...) statements in the diff parser and the git rm
+# loop marked below; this leaves old rename/move paths behind and skips deletes.
 # The incoming message/author metadata is retained without merging its ancestry.
 function apply_bundle() {
   local dir_root fl_bundle fl_hash fl_hash_marker old_hash
@@ -408,7 +464,7 @@ function apply_bundle() {
   local author_name author_email author_date
   local change_status old_path rel_file source_file target_file
   local tracked_status
-  local -a apply_paths=()
+  local -a apply_paths=() remove_paths=()
   old_hash=''
 
   dir_root=$(git rev-parse --show-toplevel) || return 1
@@ -493,15 +549,18 @@ function apply_bundle() {
           echo "abtt: malformed rename/copy destination in incoming diff." >&2
           return 1
         }
+        # A rename/move consumes its old path. A copy does not.
+        if [[ "${change_status}" == R* ]]; then
+          remove_paths+=("${old_path}")
+        fi
         ;;
       D*)
-        # Incoming deletions are intentionally non-destructive. Keep the
-        # receiving repository's existing path until removal is authorized.
         IFS= read -r -d '' old_path || {
           rm -rf -- "${tmp_root}"
           echo "abtt: malformed deletion entry in incoming diff." >&2
           return 1
         }
+        remove_paths+=("${old_path}")
         continue
         ;;
       A*|M*|T*)
@@ -524,7 +583,25 @@ function apply_bundle() {
     apply_paths+=("${rel_file}")
   done < "${tmp_changes}"
 
-  # Preflight every destination before changing any source file.
+  # Preflight every destination and every path that must be removed before
+  # changing the receiving repository.
+  for rel_file in "${remove_paths[@]}"; do
+    if ! git -C "${dir_root}" ls-files --error-unmatch -- "${rel_file}" >/dev/null 2>&1; then
+      rm -rf -- "${tmp_root}"
+      printf 'abtt: incoming deletion/rename source is not tracked locally: %s\n' "${rel_file}" >&2
+      return 1
+    fi
+    tracked_status=$(git -C "${dir_root}" status --porcelain=v1 --untracked-files=all -- "${rel_file}") || {
+      rm -rf -- "${tmp_root}"
+      return 1
+    }
+    if [[ -n "${tracked_status}" ]]; then
+      rm -rf -- "${tmp_root}"
+      printf 'abtt: local changes conflict with incoming deletion/rename; leaving repository untouched: %s\n' "${rel_file}" >&2
+      return 1
+    fi
+  done
+
   for rel_file in "${apply_paths[@]}"; do
     target_file="${dir_root}/${rel_file}"
     if git -C "${dir_root}" ls-files --error-unmatch -- "${rel_file}" >/dev/null 2>&1; then
@@ -577,6 +654,16 @@ function apply_bundle() {
     done
   fi
 
+  # Removal loop: comment this out together with the two remove_paths+=(...)
+  # statements above to restore legacy behavior (retain old paths, skip deletes).
+  for rel_file in "${remove_paths[@]}"; do
+    if ! git -C "${dir_root}" rm -- "${rel_file}"; then
+      rm -rf -- "${tmp_root}"
+      printf 'abtt: could not remove incoming deletion/rename source: %s\n' "${rel_file}" >&2
+      return 1
+    fi
+  done
+
   if ! git -C "${dir_root}" diff --cached --quiet; then
     printf '%s\n' "${fl_message}" > "${tmp_message}" || {
       rm -rf -- "${tmp_root}"
@@ -606,7 +693,7 @@ function apply_bundle() {
     rm -f -- "${marker_tmp}"
     return 1
   }
-  echo "abtt: applied ${commit_id:0:12}; incoming changes synchronized without deleting local-only files."
+  echo "abtt: applied ${commit_id:0:12}; additions, modifications, renames, moves, and deletions synchronized."
 }
 
 #-----------------------------------------------------------------------

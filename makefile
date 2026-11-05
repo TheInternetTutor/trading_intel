@@ -245,3 +245,14 @@ generate_root_readme grr :
 	source $(r_sh__librry) || exit $${?};          \
 	generate_root_readme;                          \
 	:
+
+#=======================================================================
+#h,### nle,| normalize_line_endings,: normalize tracked script line endings
+.PHONY : normalize_line_endings nle
+normalize_line_endings nle : sh/lib.sh
+normalize_line_endings nle :
+	source sh/lib.sh || exit $${?};                \
+	normalize_line_endings sh || exit $${?};       \
+	normalize_line_endings mk || exit $${?};       \
+	normalize_line_endings jq || exit $${?};       \
+	:
