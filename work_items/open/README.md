@@ -13,7 +13,6 @@ This directory contains independently maintained work-item documents for Trading
 - [070 — Establish a repeatable end-to-end test baseline](070_establish_end_to_end_test_baseline.md)
 - [080 — Define the Git bundle baseline and roll-up procedure](080_define_git_bundle_baseline_and_rollup.md)
 - [261103 14:17 — Makefile failure propagation](261103_1417_makefile_failure_propagation.md)
-- [261103 15:17 — Environment toggle function](261103_1517_environment_toggle_function.md)
 - [261103 21:09 — jq library path option compatibility](261103_2109_library_Path_option_compatibility.md)
 - [261103 21:10 — jq script line-ending compatibility](261103_2110_script_line_ending_compatibility.md)
 - [261103 21:11 — CSV parsing compatibility between GNU AWK and Mawk](261103_2111_library_Path_option_compatibility.md)
