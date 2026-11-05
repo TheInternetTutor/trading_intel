@@ -382,6 +382,55 @@ function copy_view_lots()
 }
 
 #-----------------------------------------------------------------------
+function toggle_debug_v01()
+{
+  local fl_target="${1:-}";
+  local fl_test="${fl_target}.test";
+  local fl_temp;
+
+  if [ -z "${fl_target}" ]; then
+    echo "WARNING: toggle_debug requires one file path." >&2;
+    return 1;
+  fi;
+
+  if [ ! -f "${fl_target}" ]; then
+    echo "WARNING: Target file does not exist: ${fl_target}" >&2;
+    return 1;
+  fi;
+
+  if [ ! -f "${fl_test}" ]; then
+    echo "WARNING: Test version does not exist: ${fl_test}. No files were changed." >&2;
+    return 1;
+  fi;
+
+  if [ -f "./data/testing_environment" ]; then
+    echo "# Switching ${fl_target} from test to production ...";
+  else
+    echo "# Switching ${fl_target} from production to test ...";
+  fi;
+
+  fl_temp="${fl_target}.toggle_debug_tmp.$$";
+  if ! mv -- "${fl_target}" "${fl_temp}"; then
+    echo "WARNING: Could not stage target file: ${fl_target}" >&2;
+    return 1;
+  fi;
+  if ! mv -- "${fl_test}" "${fl_target}"; then
+    mv -- "${fl_temp}" "${fl_target}";
+    echo "WARNING: Could not install test version: ${fl_test}. Original target restored." >&2;
+    return 1;
+  fi;
+  if ! mv -- "${fl_temp}" "${fl_test}"; then
+    mv -- "${fl_target}" "${fl_test}";
+    mv -- "${fl_temp}" "${fl_target}";
+    echo "WARNING: Could not complete file swap. Original files restored where possible." >&2;
+    return 1;
+  fi;
+
+  echo "Done: toggle_debug (${fl_target})";
+  return 0;
+}
+
+#-----------------------------------------------------------------------
 function toggle_debug()
 {
   local fl_target="${1:-}";
@@ -449,6 +498,217 @@ function toggle_debug_environment()
   fi;
 
   return 0;
+}
+
+#-----------------------------------------------------------------------
+# Apply only the incoming bundle's changes since the common Git ancestor.
+# Preserve local-only paths and incoming rename sources; never apply deletions.
+# The incoming message/author metadata is retained without merging its ancestry.
+function apply_bundle_v01() {
+  local dir_root fl_bundle fl_hash fl_hash_marker old_hash
+  local fl_message commit_id base_commit tmp_root tmp_payload tmp_changes tmp_message marker_tmp
+  local author_name author_email author_date
+  local change_status old_path rel_file source_file target_file
+  local tracked_status
+  local -a apply_paths=()
+  old_hash=''
+
+  dir_root=$(git rev-parse --show-toplevel) || return 1
+  fl_bundle="${dir_root}/update.bundle"
+  fl_hash_marker="${dir_root}/.update.bundle.sha256"
+
+  if [[ ! -f "${fl_bundle}" ]]; then
+    echo "abtt: bundle not found: ${fl_bundle}" >&2
+    return 1
+  fi
+
+  fl_hash=$(sha256sum "${fl_bundle}") || return 1
+  fl_hash=${fl_hash%% *}
+  if [[ -f "${fl_hash_marker}" ]]; then
+    read -r old_hash < "${fl_hash_marker}"
+  fi
+  if [[ "${fl_hash}" == "${old_hash}" ]]; then
+    echo "abtt: bundle already applied (${fl_hash:0:12}); nothing to do."
+    return 0
+  fi
+
+  if ! git -C "${dir_root}" diff --cached --quiet; then
+    echo "abtt: staged changes exist; commit or unstage them before applying the bundle." >&2
+    return 1
+  fi
+
+  if ! git -C "${dir_root}" bundle verify "${fl_bundle}" >/dev/null; then
+    echo "abtt: bundle verification failed." >&2
+    return 1
+  fi
+  if ! git -C "${dir_root}" fetch --quiet "${fl_bundle}" HEAD; then
+    echo "abtt: could not import bundle commit." >&2
+    return 1
+  fi
+
+  commit_id=$(git -C "${dir_root}" rev-parse 'FETCH_HEAD^{commit}') || return 1
+  base_commit=$(git -C "${dir_root}" merge-base HEAD "${commit_id}") || {
+    echo "abtt: incoming bundle has no common ancestor with this repository." >&2
+    return 1
+  }
+
+  fl_message=$(git -C "${dir_root}" show -s --format=%B "${commit_id}") || return 1
+  author_name=$(git -C "${dir_root}" show -s --format=%an "${commit_id}") || return 1
+  author_email=$(git -C "${dir_root}" show -s --format=%ae "${commit_id}") || return 1
+  author_date=$(git -C "${dir_root}" show -s --format=%aI "${commit_id}") || return 1
+  if [[ -z "${author_name}" || -z "${author_email}" || -z "${author_date}" ]]; then
+    echo "abtt: incoming commit is missing author metadata." >&2
+    return 1
+  fi
+  if [[ -z "${fl_message//[[:space:]]/}" ]]; then
+    fl_message='Apply incoming source bundle'
+  fi
+
+  tmp_root=$(mktemp -d) || return 1
+  tmp_payload="${tmp_root}/payload"
+  tmp_changes="${tmp_root}/changes"
+  tmp_message="${tmp_root}/message"
+  mkdir -p -- "${tmp_payload}" || {
+    rm -rf -- "${tmp_root}"
+    return 1
+  }
+
+  # The merge base defines the bundle's incremental scope. Only incoming
+  # additions, modifications, and rename destinations are candidates for copy.
+  if ! git -C "${dir_root}" diff --name-status -z --find-renames \
+       "${base_commit}" "${commit_id}" > "${tmp_changes}"; then
+    rm -rf -- "${tmp_root}"
+    echo "abtt: could not determine incoming bundle changes." >&2
+    return 1
+  fi
+
+  while IFS= read -r -d '' change_status; do
+    case "${change_status}" in
+      R*|C*)
+        IFS= read -r -d '' old_path || {
+          rm -rf -- "${tmp_root}"
+          echo "abtt: malformed rename/copy entry in incoming diff." >&2
+          return 1
+        }
+        IFS= read -r -d '' rel_file || {
+          rm -rf -- "${tmp_root}"
+          echo "abtt: malformed rename/copy destination in incoming diff." >&2
+          return 1
+        }
+        ;;
+      D*)
+        # Incoming deletions are intentionally non-destructive. Keep the
+        # receiving repository's existing path until removal is authorized.
+        IFS= read -r -d '' old_path || {
+          rm -rf -- "${tmp_root}"
+          echo "abtt: malformed deletion entry in incoming diff." >&2
+          return 1
+        }
+        continue
+        ;;
+      A*|M*|T*)
+        IFS= read -r -d '' rel_file || {
+          rm -rf -- "${tmp_root}"
+          echo "abtt: malformed file entry in incoming diff." >&2
+          return 1
+        }
+        ;;
+      *)
+        rm -rf -- "${tmp_root}"
+        echo "abtt: unsupported change type in incoming diff: ${change_status}" >&2
+        return 1
+        ;;
+    esac
+
+    # This marker describes the receiving repository's own bundle history;
+    # it must never be copied from the sending repository.
+    [[ "${rel_file}" == '.update.bundle.sha256' ]] && continue
+    apply_paths+=("${rel_file}")
+  done < "${tmp_changes}"
+
+  # Preflight every destination before changing any source file.
+  for rel_file in "${apply_paths[@]}"; do
+    target_file="${dir_root}/${rel_file}"
+    if git -C "${dir_root}" ls-files --error-unmatch -- "${rel_file}" >/dev/null 2>&1; then
+      tracked_status=$(git -C "${dir_root}" status --porcelain=v1 --untracked-files=all -- "${rel_file}") || {
+        rm -rf -- "${tmp_root}"
+        return 1
+      }
+      if [[ -n "${tracked_status}" ]]; then
+        rm -rf -- "${tmp_root}"
+        printf 'abtt: local changes conflict with incoming file; leaving repository untouched: %s\n' "${rel_file}" >&2
+        return 1
+      fi
+    elif [[ -e "${target_file}" || -L "${target_file}" ]]; then
+      rm -rf -- "${tmp_root}"
+      printf 'abtt: incoming file would overwrite an untracked local file; leaving repository untouched: %s\n' "${rel_file}" >&2
+      return 1
+    fi
+  done
+
+  if ((${#apply_paths[@]})); then
+    if ! (set -o pipefail; git -C "${dir_root}" archive --format=tar "${commit_id}" -- "${apply_paths[@]}" \
+         | tar -xf - -C "${tmp_payload}"); then
+      rm -rf -- "${tmp_root}"
+      echo "abtt: could not extract incoming changed files." >&2
+      return 1
+    fi
+
+    for rel_file in "${apply_paths[@]}"; do
+      source_file="${tmp_payload}/${rel_file}"
+      target_file="${dir_root}/${rel_file}"
+      if [[ ! -e "${source_file}" && ! -L "${source_file}" ]]; then
+        rm -rf -- "${tmp_root}"
+        printf 'abtt: incoming file is missing from its commit: %s\n' "${rel_file}" >&2
+        return 1
+      fi
+      mkdir -p -- "${dir_root}/$(dirname -- "${rel_file}")" || {
+        rm -rf -- "${tmp_root}"
+        return 1
+      }
+      cp -pP -- "${source_file}" "${target_file}" || {
+        rm -rf -- "${tmp_root}"
+        printf 'abtt: could not install incoming file: %s\n' "${rel_file}" >&2
+        return 1
+      }
+      git -C "${dir_root}" add -f -- "${rel_file}" || {
+        rm -rf -- "${tmp_root}"
+        printf 'abtt: could not stage incoming file: %s\n' "${rel_file}" >&2
+        return 1
+      }
+    done
+  fi
+
+  if ! git -C "${dir_root}" diff --cached --quiet; then
+    printf '%s\n' "${fl_message}" > "${tmp_message}" || {
+      rm -rf -- "${tmp_root}"
+      return 1
+    }
+    # Preserve incoming author identity/date; the receiving repository's
+    # configured identity remains the committer.
+    if ! GIT_AUTHOR_NAME="${author_name}" \
+         GIT_AUTHOR_EMAIL="${author_email}" \
+         GIT_AUTHOR_DATE="${author_date}" \
+         git -C "${dir_root}" commit --file="${tmp_message}"; then
+      rm -rf -- "${tmp_root}"
+      echo "abtt: commit failed; bundle marker was not updated." >&2
+      return 1
+    fi
+  else
+    echo "abtt: no applicable source changes; no new commit needed."
+  fi
+
+  rm -rf -- "${tmp_root}"
+  marker_tmp=$(mktemp "${fl_hash_marker}.tmp.XXXXXX") || return 1
+  if ! printf '%s\n' "${fl_hash}" > "${marker_tmp}"; then
+    rm -f -- "${marker_tmp}"
+    return 1
+  fi
+  mv -f -- "${marker_tmp}" "${fl_hash_marker}" || {
+    rm -f -- "${marker_tmp}"
+    return 1
+  }
+  echo "abtt: applied ${commit_id:0:12}; incoming changes synchronized without deleting local-only files."
 }
 
 #-----------------------------------------------------------------------
