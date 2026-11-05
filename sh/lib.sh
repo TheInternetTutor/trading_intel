@@ -333,44 +333,47 @@ function toggle_debug()
 {
   local fl_target="${1:-}";
   local fl_test="${fl_target}.test";
-  local fl_temp;
+  local fl_production="${fl_target}.production";
 
   if [ -z "${fl_target}" ]; then
     echo "WARNING: toggle_debug requires one file path." >&2;
     return 1;
   fi;
 
-  if [ ! -f "${fl_target}" ]; then
-    echo "WARNING: Target file does not exist: ${fl_target}" >&2;
-    return 1;
-  fi;
-
-  if [ ! -f "${fl_test}" ]; then
-    echo "WARNING: Test version does not exist: ${fl_test}. No files were changed." >&2;
-    return 1;
-  fi;
-
-  if [ -f "./data/testing_environment" ]; then
-    echo "# Switching ${fl_target} from test to production ...";
+  # The backup extension, not the testing_environment flag, determines
+  # which direction this file transitions.
+  if [ -f "${fl_production}" ]; then
+    echo "# Restoring production data: ${fl_target}";
+    if ! mv -f -- "${fl_production}" "${fl_target}"; then
+      echo "WARNING: Could not restore production file: ${fl_production}" >&2;
+      return 1;
+    fi;
   else
-    echo "# Switching ${fl_target} from production to test ...";
-  fi;
+    if [ ! -f "${fl_target}" ]; then
+      echo "WARNING: Production source file does not exist: ${fl_target}" >&2;
+      return 1;
+    fi;
 
-  fl_temp="${fl_target}.toggle_debug_tmp.$$";
-  if ! mv -- "${fl_target}" "${fl_temp}"; then
-    echo "WARNING: Could not stage target file: ${fl_target}" >&2;
-    return 1;
-  fi;
-  if ! mv -- "${fl_test}" "${fl_target}"; then
-    mv -- "${fl_temp}" "${fl_target}";
-    echo "WARNING: Could not install test version: ${fl_test}. Original target restored." >&2;
-    return 1;
-  fi;
-  if ! mv -- "${fl_temp}" "${fl_test}"; then
-    mv -- "${fl_target}" "${fl_test}";
-    mv -- "${fl_temp}" "${fl_target}";
-    echo "WARNING: Could not complete file swap. Original files restored where possible." >&2;
-    return 1;
+    if [ ! -f "${fl_test}" ]; then
+      echo "WARNING: Test source file does not exist: ${fl_test}. No files were changed." >&2;
+      return 1;
+    fi;
+
+    echo "# Installing test data: ${fl_target}";
+    if ! mv -- "${fl_target}" "${fl_production}"; then
+      echo "WARNING: Could not preserve production file: ${fl_target}" >&2;
+      return 1;
+    fi;
+
+    if ! cp -- "${fl_test}" "${fl_target}"; then
+      rm -f -- "${fl_target}";
+      if ! mv -- "${fl_production}" "${fl_target}"; then
+        echo "ERROR: Test installation failed and production restoration also failed: ${fl_production}" >&2;
+      else
+        echo "WARNING: Test installation failed. Production data was restored." >&2;
+      fi
+      return 1;
+    fi;
   fi;
 
   echo "Done: toggle_debug (${fl_target})";

@@ -12,10 +12,10 @@ Git history is the authoritative development record. A complete archive is a boo
 2. Work from the repository root, where the project `makefile` and `.git/` directory reside.
 3. Verify the repository root and current state with `git rev-parse --show-toplevel`, `git status --short`, and `git log -1`.
 4. In a newly created execution environment, run `make itd` before other Make targets that rely on refresh triggers. This initializes temporary trigger dependencies declared by the included Make modules.
-5. Configure the Engineer's intended global Git identity, using that collaborator's own name and email: `git config --global user.name "Your Name"` and `git config --global user.email "you@example.com"`.
-6. Run `make ugu` to remove repository-local `user.name` and `user.email` overrides.
-7. Verify the effective identity and its source with `git config --show-origin --get user.name`, `git config --show-origin --get user.email`, `git var GIT_AUTHOR_IDENT`, and `git var GIT_COMMITTER_IDENT`.
-8. Do not create commits until the intended author and committer identities have been verified. Never blindly reuse another collaborator's identity.
+5. Run `make ugu` to remove repository-local `user.name` and `user.email` overrides. Do this before configuring the global identity because local values can override global values.
+6. Configure the Engineer's own global Git identity in the Engineer's execution environment. When the Engineer is ChatGPT, use `git config --global user.name "ChatGPT"` and `git config --global user.email "chatgpt@users.noreply.github.com"`. Never configure the Architect's personal name or email as the Engineer's identity. Another Engineer must use its own designated identity.
+7. Verify the effective identity and its source with `git config --show-origin --get user.name`, `git config --show-origin --get user.email`, `git var GIT_AUTHOR_IDENT`, and `git var GIT_COMMITTER_IDENT`. Confirm that the effective values identify the Engineer, not the Architect.
+8. Do not create commits until the intended author and committer identities have been verified.
 
 ## Choose a transfer method
 
