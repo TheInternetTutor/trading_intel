@@ -1057,3 +1057,54 @@ function generate_root_readme() {
 
 #-----------------------------------------------------------------------
 # declare -F;
+
+
+#-----------------------------------------------------------------------
+# Extract the source tree carried by the root-level incremental Git bundle.
+# The temporary repository keeps all fetch/archive operations away from the
+# receiving repository's .git database and working tree.
+function extract_git_bundle()
+{
+  local repo_root bundle_file destination tmp_repo
+
+  repo_root=$(git rev-parse --show-toplevel) || {
+    echo "ERROR: Current directory is not inside a Git repository." >&2
+    return 1
+  }
+  bundle_file="${repo_root}/update.bundle"
+  destination="${1:-dir}"
+
+  [[ -f "${bundle_file}" ]] || {
+    echo "ERROR: Bundle not found: ${bundle_file}" >&2
+    return 1
+  }
+  [[ -n "${destination}" ]] || {
+    echo "ERROR: Extraction destination cannot be empty." >&2
+    return 1
+  }
+  mkdir -p -- "${destination}" || return 1
+
+  tmp_repo=$(mktemp -d) || return 1
+  if ! git -C "${tmp_repo}" init -q; then
+    rm -rf -- "${tmp_repo}"
+    return 1
+  fi
+  if ! git -C "${tmp_repo}" fetch -q "${repo_root}" HEAD; then
+    rm -rf -- "${tmp_repo}"
+    echo "ERROR: Could not fetch the receiving repository's HEAD." >&2
+    return 1
+  fi
+  if ! git -C "${tmp_repo}" fetch -q "${bundle_file}"; then
+    rm -rf -- "${tmp_repo}"
+    echo "ERROR: Could not fetch the incremental bundle: ${bundle_file}" >&2
+    return 1
+  fi
+  if ! (set -o pipefail; git -C "${tmp_repo}" archive FETCH_HEAD | tar -xf - -C "${destination}"); then
+    rm -rf -- "${tmp_repo}"
+    echo "ERROR: Could not extract the bundle source tree into ${destination}." >&2
+    return 1
+  fi
+
+  rm -rf -- "${tmp_repo}"
+  echo "extract_git_bundle: extracted ${bundle_file} into ${destination}"
+}

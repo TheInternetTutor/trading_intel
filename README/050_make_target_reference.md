@@ -18,6 +18,7 @@ The exact available targets are printed by `make` (or `make h`). The following t
 | `make pli` / `make nli` | Process / normalize lot inventory. |
 | `make tp` / `make plinu` | Run the test pipeline / process lots without updates, subject to prerequisites. |
 | `make ab` | Apply incoming additions, modifications, and rename destinations from root-level `update.bundle`; preserves incoming deletions and is authorization-gated. |
+| `make egb` / `make extract_git_bundle` | Extract the source tree from root-level `update.bundle` into `dir/` using a temporary Git repository; the Bash function also accepts an optional destination argument and leaves the receiving repository unchanged. |
 | `make cgb` | Create and verify an incremental `update.bundle`; refuses to package uncommitted source changes and may replace a same-named bundle in the repository root. |
 | `make zr` | Create a complete repository ZIP according to the current Makefile implementation. |
 | `make gcf` | Concatenate tracked Git files to standard output. |

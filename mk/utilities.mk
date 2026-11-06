@@ -185,6 +185,15 @@ create_git_bundle cgb :
 	:
 
 #=======================================================================
+#h,### egb,| extract_git_bundle,: extract source tree from root-level update.bundle
+.PHONY : extract_git_bundle egb
+extract_git_bundle egb : $(sh__librry)
+extract_git_bundle egb :
+	source $(r_sh__librry);              \
+	extract_git_bundle;                  \
+	:
+
+#=======================================================================
 #x,### zr,| zip_repository,: create a zip with code-base + git-database
 .PHONY : zip_repository_1 zr_1
 zip_repository_1 zr_1 :
