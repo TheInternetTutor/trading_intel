@@ -59,3 +59,28 @@ Do not assume that simple comma-separated field extraction is sufficient.
 - Preserve existing business logic.
 - Avoid unrelated changes to the pipeline.
 - Establish a known-good baseline before modifying the normalizer.
+## Implementation investigation — 2026-11-06
+
+Option A has been implemented in `sh/ibkr_lots_normalize.awk`:
+
+- Replaced GNU AWK `FPAT` field splitting with a character-by-character CSV record parser using portable AWK features.
+- Supports quoted fields, commas inside quoted fields, doubled quotes (`""`), and empty fields.
+- Rejects an unterminated quoted field and rejects records that do not contain the expected 23 columns.
+- The current IBKR export contains 449 data records and no embedded newlines inside quoted fields. The parser processes physical input lines; multiline quoted fields are not supported because they are not present in this export.
+
+Validation performed with the installed `mawk 1.3.4`:
+
+- Normalized all 449 data records successfully.
+- Parsed the complete JSONL with `jq`; numeric output fields were verified as JSON numbers.
+- Compared key fields (`report_date`, `symbol`, `conid`, `quantity`, and `description`) against all 449 source CSV records.
+- Tested a description containing both a comma and escaped double quotes; passed.
+- Tested empty fields; passed.
+- Tested an unterminated quoted field; correctly rejected.
+- Captured repeatable viewer snapshots `010.diff` and `020.diff`; their contents are identical.
+
+Limitations / remaining validation:
+
+- GNU AWK is not installed in this execution environment, so a same-input GNU AWK versus mawk comparison could not be performed here. The implementation no longer uses `FPAT` or other GNU AWK-specific features.
+- `make tp` did not regenerate the stale JSONL during this run. The current no-update path touches files under `data/` before invoking the processing target, so the existing output can appear up-to-date to Make. The normalizer was therefore exercised directly through the shared `normalize_lot_inventory` function. End-to-end Make-target regeneration remains to be investigated separately.
+
+The issue remains open pending GNU AWK cross-environment comparison and confirmation that the normal Make test path actually regenerates the normalized JSONL.

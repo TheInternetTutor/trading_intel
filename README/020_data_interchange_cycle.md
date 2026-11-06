@@ -47,8 +47,9 @@ A bundle that changes `apply_bundle()` cannot use its own new implementation to 
 4. Ensure there are no uncommitted source changes. The local `.update.bundle.sha256` marker is receiver-specific state and is excluded from the outgoing bundle cleanliness check.
 5. Run `make cgb` to create and verify `update.bundle` in the Engineer's workspace.
 6. Inspect the resulting bundle and calculate its SHA-256 hash before delivery.
-7. Copy the bundle additively into the Architect's persistent Library at `/030_trading_intel/`. The Engineer's `/mnt/data/` workspace is private to the execution environment and is not a delivery location.
-8. Never overwrite or delete an existing Library bundle. Allow duplicate-safe names such as `update(6).bundle`, and report the exact resulting Library path, size, and hash.
+7. Before delivery, inspect the actual destination directory and apply the general file-naming collision rule: keep `update.bundle` when available; otherwise use the next integer suffix in parentheses (`update(1).bundle`, `update(2).bundle`, and so on). Determine the next number from the highest existing suffix for that exact basename and extension. Do not rely on automatic duplicate naming, timestamps, or stale listings.
+8. Copy the bundle additively into the Architect's persistent Library at `/finances/030_trading_intel/`. The Engineer's `/mnt/data/` workspace is private to the execution environment and is not a delivery location. Never overwrite, rename, or delete an existing Library bundle.
+9. Verify the exact resulting Library filename, path, size, and SHA-256 hash, and report them.
 
 A sandbox link or a path under the Engineer's `/mnt/data/` is not a substitute for placing the artifact in the Architect's Library.
 
