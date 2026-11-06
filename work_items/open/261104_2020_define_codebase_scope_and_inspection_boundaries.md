@@ -1,7 +1,5 @@
 # Define Codebase Scope and Inspection Boundaries
 
-**Status:** Open
-
 ## Purpose
 
 Make the boundaries of the Trading Intel implementation explicit so that a new AI engineer can inspect the executable codebase efficiently without treating every project directory or supporting document as implementation source.

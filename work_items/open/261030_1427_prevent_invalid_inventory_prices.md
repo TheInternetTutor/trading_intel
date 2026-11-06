@@ -1,6 +1,5 @@
 # Prevent Invalid Prices from Entering Inventory Calculations
 
-**Status:** Open
 **Priority:** As listed in the original Trading Intel issue register
 
 ## Purpose

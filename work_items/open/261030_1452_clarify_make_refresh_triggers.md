@@ -1,7 +1,5 @@
 # Clarify Make Target Dependencies and Refresh Triggers
 
-**Status:** Open
-
 ## Purpose
 
 Ensure expected absent refresh-trigger files are handled deliberately and are not confused with genuine unknown Make targets.

@@ -1,7 +1,5 @@
 # Restore and Verify Market-Open Detection
 
-**Status:** Open
-
 ## Purpose
 
 Restore or replace market-open detection so that it reflects the intended market-hours and timezone behavior rather than always reporting the market as closed.

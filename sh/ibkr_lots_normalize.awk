@@ -12,21 +12,50 @@
 #
 ###############################################################################
 
-BEGIN {
-    FPAT = "([^,]+)|(\"([^\"]|\"\")*\")"
+# Parse one physical CSV record without GNU AWK FPAT. This parser supports
+# quoted fields, commas inside quoted fields, escaped double quotes (""),
+# and empty fields. The current IBKR export contains no embedded newlines in
+# quoted fields; AWK's normal line-record input is therefore sufficient.
+function parse_csv_record(line, fields,    i, ch, next_ch, quoted, value, count)
+{
+    quoted = 0
+    value = ""
+    count = 1
+
+    for (i = 1; i <= length(line); i++) {
+        ch = substr(line, i, 1)
+        next_ch = (i < length(line) ? substr(line, i + 1, 1) : "")
+
+        if (quoted) {
+            if (ch == "\"" && next_ch == "\"") {
+                value = value "\""
+                i++
+            } else if (ch == "\"") {
+                quoted = 0
+            } else {
+                value = value ch
+            }
+        } else if (ch == ",") {
+            fields[count++] = value
+            value = ""
+        } else if (ch == "\"" && value == "") {
+            quoted = 1
+        } else {
+            value = value ch
+        }
+    }
+
+    if (quoted)
+        return -1
+
+    fields[count] = value
+    return count
 }
 
 ###############################################################################
 # utility functions
 ###############################################################################
 
-function trim_quotes(s)
-{
-    gsub(/^"/, "", s)
-    gsub(/"$/, "", s)
-    gsub(/""/, "\"", s)
-    return s
-}
 
 function json_escape(s)
 {
@@ -189,11 +218,11 @@ function display_jsonl_record()
 ###############################################################################
 
 NR == 1 {
-
-    for (i = 1; i <= NF; i++) {
-        hdr[i] = trim_quotes($i)
+    header_fields = parse_csv_record($0, csv_fields)
+    if (header_fields != 23) {
+        printf "CSV header: expected 23 fields, found %d\n", header_fields > "/dev/stderr"
+        exit 2
     }
-
     next
 }
 
@@ -217,8 +246,14 @@ NR == 1 {
   locking_lot_id    = "---"; # currently used
   locking_lots_pnl  = "---"; # sum of LOS lots acquired after current lot
 
-  for (i = 1; i <= NF; i++) {
-      v[i] = trim_quotes($i)
+  field_count = parse_csv_record($0, csv_fields)
+  if (field_count != 23) {
+      printf "CSV record %d: expected 23 fields, found %d\n", NR, field_count > "/dev/stderr"
+      exit 2
+  }
+
+  for (i = 1; i <= field_count; i++) {
+      v[i] = csv_fields[i]
   }
 
   report_date                = (v[1]  == ""? "---": v[1] );

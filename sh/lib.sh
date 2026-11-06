@@ -1072,7 +1072,7 @@ function extract_git_bundle()
     return 1
   }
   bundle_file="${repo_root}/update.bundle"
-  destination="${1:-dir}"
+  destination="${1:-z_update_bundle}"
 
   [[ -f "${bundle_file}" ]] || {
     echo "ERROR: Bundle not found: ${bundle_file}" >&2

@@ -1,7 +1,5 @@
 # Establish a Repeatable End-to-End Test Baseline
 
-**Status:** Open
-
 ## Purpose
 
 Establish a repeatable test-data baseline for the inventory pipeline and verify lot reconstruction and position reconciliation before any production update is attempted.

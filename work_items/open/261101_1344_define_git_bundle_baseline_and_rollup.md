@@ -1,7 +1,5 @@
 # Define Git Bundle Baseline and Roll-Up Procedure
 
-**Status:** Open
-
 ## Purpose
 
 Document and eventually implement a reliable procedure for maintaining the shared Git commit used as the base of incremental bundles exchanged between the user's repository and the assistant's workbench repository.

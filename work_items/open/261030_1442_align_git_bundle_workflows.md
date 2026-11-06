@@ -1,7 +1,5 @@
 # Align Git Bundle Creation and Application
 
-**Status:** Open
-
 ## Purpose
 
 Make Git bundle creation, validation, and application use one consistent documented bundle filename and checksum convention.
