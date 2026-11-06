@@ -29,27 +29,28 @@ VIEW LOTS — command/function reference
 
 Core viewer
 -----------
-vl              : render the current lots dataset.
-vl.sym <symbol> : show all lots for a symbol.
-vl.ls           : list unique symbols.
+vl                : render the current lots dataset.
+vl.sym <symbol>   : show all lots for a symbol.
+vl.ls             : list unique symbols.
 
 Lot-state reports
 -----------------
-vl.hvt          : report harvestable (10.HVT) lots.
-vl.lkd          : report locked (30.LKD) lots.
-vl.bke          : report break-even (40.BKE) lots.
-vl.pnl          : report the remaining profitable/P&L lots.
-vl.hvti         : expand HVT symbols into their complete inventories.
+vl.hvt            : report harvestable (10.HVT) lots.
+vl.lkd            : report locked (30.LKD) lots.
+vl.bke            : report break-even (40.BKE) lots.
+vl.pnl            : report the remaining profitable/P&L lots.
+vl.hvti           : expand HVT symbols into their complete inventories.
+vl.pnlge[1] [pnl] : display lots >= to [pnl=-10]
 
 IBKR
 ----
-vl.ib           : generate the IBKR lot-symbol import file.
+vl.ib             : generate the IBKR lot-symbol import file.
 
 Reports
 -------
-vl.rpt          : generate the terminal lots report.
-vl.rptf         : generate the lots report file.
-vl.up           : execute the complete lots update/report workflow.
+vl.rpt            : generate the terminal lots report.
+vl.rptf           : generate the lots report file.
+vl.up             : execute the complete lots update/report workflow.
 #--documentation
 
 <<-'#--documentation'
@@ -287,7 +288,8 @@ function generate_lot_state_report()
 
   echo "${table}"                                \
   | cut --delimiter='|' --fields=${cols}         \
-  | nl --number-width=4;
+  | nl --number-width=4 --starting-line-number=0 \
+  ;
 
   local total=$(
     echo "${table}"                              \
@@ -578,6 +580,49 @@ alias vl.upt='{
   generate_lots_report; 
   generate_lots_report_file;
 }';
+
+#-----------------------------------------------------------------------
+function pnl_great_or_equal()
+{
+  local pnl=${1:--10};
+  generate_lot_state_report                      \
+  "## >= ${pnl}"                                 \
+  1,2,3,4,5,6,7,8                                \
+  "4.1n"                               \
+  -e 10.HVT -e 20.PBA -e 40.BKE -e 50.LOS        \
+  | awk                                          \
+  --field-separator '|'                          \
+  --assign pnl=${pnl}                            \
+  '{ 
+    if ($4 >= pnl) print $0;
+  }'                  \
+  | grep --invert-match '30.LKD'                 \
+  ;
+  return ${?};
+}
+alias vl.pnlge=pnl_great_or_equal;
+#.......................................................................
+function pnl_great_or_equal_1()
+{
+  local pnl=${1:--10};
+  render_lots_view                     \
+  | grep                               \
+  --invert-match                       \
+  -e '30.LKD'                          \
+  -e '05.SMR'                          \
+  -e '15.HVT'                          \
+  | awk                                \
+  --field-separator '|'                \
+  --assign pnl=${pnl}                  \
+  '{ if ($4 >= pnl) print $0;}'        \
+  | sort                               \
+  --field-separator='|'                \
+  --key=4.1n                           \
+  | nl                                 \
+  ;
+  return ${?};
+}
+alias vl.pnlge1=pnl_great_or_equal_1;
 
 #=======================================================================
 # MAIN
