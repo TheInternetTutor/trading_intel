@@ -96,7 +96,7 @@ $(c_jsn_rawlot) ::                               \
   $(c_jsn_blivep)                                \
 	$(csv_bolots)                                  \
 ;
-	echo "# Creating stable copy for rederer application:";  \
-	source $(r_sh__librry);                                  \
-	copy_view_lots $(@) $(c_jsn_viewlt);                     \
+	echo "# Creating stable copy for renderer application:"; \
+	source $(r_sh__librry) || exit $${?};                   \
+	copy_view_lots "$(@)" "$(c_jsn_viewlt)" || exit $${?}; \
 :

@@ -355,29 +355,54 @@ function run_script_on_source()
 #-----------------------------------------------------------------------
 function copy_view_lots()
 {
-  local fl_source=${1};
-  local fl_copy=${2};
+  local fl_source="${1:-}";
+  local fl_copy="${2:-}";
 
   local fl_copy_dt='';
+  local fl_name='';
   local date_time='';
-  local fl_sample_data=${fl_source%\.*}_sample.${fl_source##*.};
+  local fl_sample_data='';
   local dir_source='';
 
-  # echo "## Creating stable copy for rederer application:";
-  if [ -s ${fl_source} ]; then {
-    dir_source=${fl_source%/*};
-    fl_name=${fl_copy##*/};
+  if [ -z "${fl_source}" ] || [ -z "${fl_copy}" ]; then
+    echo "copy_view_lots: source and destination paths are required." >&2;
+    return 1;
+  fi
 
-    date_time=$(date +"%y%m%d_%H%M%S");       
-    fl_name=${fl_name/_lots/_lots_${date_time}};
-    # fl_copy_dt=${fl_copy/_lots/_lots_${date_time}};
-    fl_copy_dt=${dir_source}/jsonl/${fl_name};
-    cp --force ${fl_source} ${fl_copy};
-    # cp --force ${fl_source} ${fl_copy_dt};
-    jq . ${fl_source} > ${fl_copy_dt};
-    head --lines=30 ${fl_source} > ${fl_sample_data};
-    # declare -p dir_source fl_name fl_copy_dt;
-  } fi
+  if [ ! -s "${fl_source}" ]; then
+    echo "copy_view_lots: source file is missing or empty: ${fl_source}" >&2;
+    return 1;
+  fi
+
+  dir_source="${fl_source%/*}";
+  fl_name="${fl_copy##*/}";
+  date_time=$(date +"%y%m%d_%H%M%S") || return 1;
+  fl_name="${fl_name/_lots/_lots_${date_time}}";
+  fl_copy_dt="${dir_source}/jsonl/${fl_name}";
+  fl_sample_data="${fl_source%.*}_sample.${fl_source##*.}";
+
+  # The timestamped JSONL output is written below this runtime directory.
+  if ! mkdir --parents -- "${dir_source}/jsonl"; then
+    echo "copy_view_lots: could not create output directory: ${dir_source}/jsonl" >&2;
+    return 1;
+  fi
+
+  if ! cp --force -- "${fl_source}" "${fl_copy}"; then
+    echo "copy_view_lots: could not create stable viewer copy: ${fl_copy}" >&2;
+    return 1;
+  fi
+
+  if ! jq . "${fl_source}" > "${fl_copy_dt}"; then
+    echo "copy_view_lots: jq failed while creating timestamped output: ${fl_copy_dt}" >&2;
+    rm -f -- "${fl_copy_dt}";
+    return 1;
+  fi
+
+  if ! head --lines=30 -- "${fl_source}" > "${fl_sample_data}"; then
+    echo "copy_view_lots: could not create sample file: ${fl_sample_data}" >&2;
+    return 1;
+  fi
+
   return 0;
 }
 
