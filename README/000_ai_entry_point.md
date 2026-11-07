@@ -37,40 +37,32 @@ For routine bundle exchange:
 
 The cycle is iterative. There is no permanently fixed original snapshot: every new snapshot becomes the baseline for the next iteration. Always compare the two most recent snapshots.
 
-### Initialize the local test path
+### Initialize and inspect
 
-1. Run `make itd` to initialize temporary refresh-trigger dependencies. This is not a general network-disable switch.
-2. Run `make ite` to check whether test mode is active.
-3. If `make ite` reports `false`, run `make td` once, then verify with `make ite` again. If it reports `true`, do not run `make td`: it is a toggle and would switch back to production mode.
-4. Inspect the relevant tracked source sections with `make gcf | make ds` when useful.
+1. Read the project's IDC configuration in `README/` before running project-specific commands.
+2. Initialize the local test path and verify its active mode using the project's documented procedure. Never toggle a mode without first checking its current state.
+3. Inspect the source, dependencies, and inputs that the iteration is intended to exercise.
 
-### Generate viewer data and capture a snapshot
+### Generate analysis data and capture a snapshot
 
-1. Run `make tp` to execute the test pipeline and prepare the data consumed by the viewer. It requires test mode and suppresses the pipeline's normal standard output; it does **not** generate the viewer snapshot.
-2. Invoke the viewer independently of Make rules and batch functions. The viewer consumes prepared JSONL data and checks whether its input file exists. A missing-input error is not a valid snapshot.
-3. For this project, source `sh/view_lots.sh` and call `render_lots_view`; redirect its standard output to the next snapshot. Default input example:
+1. Run the configured data-preparation or test-processing procedure under the established test conditions.
+2. Invoke the project's configured **Data Generator** to emit standardized, analysis-ready data. The Data Generator is a project-defined mechanism; it is not assumed to be a report or visualization.
+3. Apply the project's documented deterministic normalization, ordering, or filtering before saving the output as the next numbered snapshot.
+4. Confirm that every stage succeeded and inspect the captured output. A missing-input message, empty output caused by an upstream failure, or masked command failure is not a valid snapshot.
 
-   `set -o pipefail && source sh/view_lots.sh >/dev/null && render_lots_view | LC_ALL=C sort > 010.diff`
+### Iterate and compare
 
-   To use another JSONL input, pass its path when sourcing the script:
+Repeat the controlled sequence:
 
-   `set -o pipefail && source sh/view_lots.sh /path/to/view_lots.jsonl >/dev/null && render_lots_view | LC_ALL=C sort > 010.diff`
+`modify -> inspect source -> prepare data -> invoke Data Generator -> normalize -> capture next snapshot -> compare consecutive snapshots -> analyze`
 
-4. Always pipe `render_lots_view` through `LC_ALL=C sort` before redirecting to the snapshot. This stable ordering prevents incidental record-order changes from polluting comparisons. Confirm successful viewer execution and inspect the sorted output.
+Use the project's established snapshot naming convention. Compare the newest snapshot with the immediately preceding snapshot; preserve earlier snapshots and do not create pair-named comparison files unless explicitly required. Keep inputs, filters, execution conditions, generator options, and output formatting consistent. If the result is inconclusive, improve diagnostics and capture another snapshot. The newest snapshot becomes the baseline for the next iteration.
 
-### Iterate: edit, capture, compare, analyze, and conclude
+### Post-commit recovery archive
 
-Repeat the following sequence after each controlled modification:
+Immediately after **every successful Git commit**, run the project's configured repository archive target and verify the archive's integrity. The archive target may replace its previous project-local archive; do not invent a versioning or external-persistence step unless the project configuration explicitly requires one. This is an IDC checkpoint, not a DIC bundle operation. If archive creation or validation fails, the commit remains valid but the IDC checkpoint is incomplete; resolve the failure and retry the archive step without making another commit.
 
-`edit -> inspect source -> make tp -> render_lots_view | LC_ALL=C sort -> capture next snapshot -> compare previous vs. next`
-
-Use three-digit snapshot numbers in increments of ten: `010.diff`, `020.diff`, `030.diff`, `040.diff`, and so on. Compare consecutive snapshots only. Example:
-
-`diff -Bydaw --suppress-common-lines -W115 010.diff 020.diff`
-
-Then compare `020.diff` with `030.diff`, then `030.diff` with `040.diff`, and continue. Do not overwrite earlier snapshots or create pair-named comparison files unless explicitly required.
-
-During comparison and analysis, inspect actual differences; distinguish intended behavior changes from unexpected changes, missing records, ordering changes, formatting noise, and environmental effects. Keep inputs, filters, environment, viewer options, and formatting consistent where practical. If the result is inconclusive, improve diagnostics and capture another snapshot. If a change worsens behavior, preserve the evidence and restore or revise the source. The newest snapshot becomes the baseline for the next iteration.
+For this repository, consult `README/040_trading_intel_project.md` for the configured Data Generator, data-preparation procedure, snapshot normalization, and archive target and contents. See `README/030_iterative_development_cycle.md` for the complete generic IDC procedure.
 
 ## Safety and working rules
 
@@ -84,7 +76,7 @@ During comparison and analysis, inspect actual differences; distinguish intended
 
 - `makefile` — project entry point and Make orchestration.
 - `mk/` — included Make rules.
-- `sh/` — shell utilities, including `view_lots.sh` and shared functions.
+- `sh/` — shell utilities and shared functions.
 - `jq/` — jq filters and utilities.
 - `py/` — Python processing code.
 - `data/` — inventory data and test fixtures.

@@ -31,7 +31,7 @@ The cycle can be used independently of the Iterative Development Cycle. Its conc
 
 ### Iterative Development Cycle (`-idc-`)
 
-The Iterative Development Cycle governs how the Engineer investigates, modifies, executes, and evaluates the software. It uses controlled changes, repeatable runs, and numbered output snapshots. Each new snapshot is compared with the immediately preceding snapshot; the newest snapshot then becomes the baseline for the next iteration.
+The Iterative Development Cycle governs how the Engineer investigates, modifies, executes, and evaluates the software. It uses a project-configured Data Generator to produce standardized analysis data, controlled changes, repeatable runs, and numbered output snapshots. Each new snapshot is compared with the immediately preceding snapshot; the newest snapshot then becomes the baseline for the next iteration. After every successful Git commit, the IDC also requires a verified and durably persisted repository archive checkpoint.
 
 The cycle can be used independently of Data Interchange. Its concern is controlled development and evidence-based validation, not transferring repository state. See [Iterative Development Cycle](030_iterative_development_cycle.md).
 
