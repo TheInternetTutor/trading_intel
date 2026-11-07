@@ -46,23 +46,23 @@ The cycle is iterative. There is no permanently fixed original snapshot: every n
 
 ### Generate viewer data and capture a snapshot
 
-1. Run `make tp` to execute the test pipeline and prepare the data consumed by the viewer. It requires test mode and suppresses the pipeline's normal standard output; it does **not** generate the viewer report snapshot.
+1. Run `make tp` to execute the test pipeline and prepare the data consumed by the viewer. It requires test mode and suppresses the pipeline's normal standard output; it does **not** generate the viewer snapshot.
 2. Invoke the viewer independently of Make rules and batch functions. The viewer consumes prepared JSONL data and checks whether its input file exists. A missing-input error is not a valid snapshot.
-3. For this project, source `sh/view_lots.sh` and call `generate_lots_report`; redirect its standard output to the next snapshot. Default input example:
+3. For this project, source `sh/view_lots.sh` and call `render_lots_view`; redirect its standard output to the next snapshot. Default input example:
 
-   `source sh/view_lots.sh >/dev/null && generate_lots_report > 010.diff`
+   `set -o pipefail && source sh/view_lots.sh >/dev/null && render_lots_view | LC_ALL=C sort > 010.diff`
 
    To use another JSONL input, pass its path when sourcing the script:
 
-   `source sh/view_lots.sh /path/to/view_lots.jsonl >/dev/null && generate_lots_report > 010.diff`
+   `set -o pipefail && source sh/view_lots.sh /path/to/view_lots.jsonl >/dev/null && render_lots_view | LC_ALL=C sort > 010.diff`
 
-4. Confirm successful viewer execution and inspect the captured output.
+4. Always pipe `render_lots_view` through `LC_ALL=C sort` before redirecting to the snapshot. This stable ordering prevents incidental record-order changes from polluting comparisons. Confirm successful viewer execution and inspect the sorted output.
 
 ### Iterate: edit, capture, compare, analyze, and conclude
 
 Repeat the following sequence after each controlled modification:
 
-`edit -> inspect source -> make tp -> invoke viewer -> capture next snapshot -> compare previous vs. next`
+`edit -> inspect source -> make tp -> render_lots_view | LC_ALL=C sort -> capture next snapshot -> compare previous vs. next`
 
 Use three-digit snapshot numbers in increments of ten: `010.diff`, `020.diff`, `030.diff`, `040.diff`, and so on. Compare consecutive snapshots only. Example:
 

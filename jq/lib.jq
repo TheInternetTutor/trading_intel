@@ -815,7 +815,7 @@ def pipeline($live):
 
   display_lots_canonically
 
-  # | close_position($live)    # new stages
+  | close_position($live)
   # | new_position($live)      # new stages
   # | reverse_position($live)  # new stages
   # | increase_position($live) # new stages
