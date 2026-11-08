@@ -1,10 +1,10 @@
-# Iterative Development Cycle (`-idc-`)
+# Rotational Cycle — Iterative Development Cycle (IDC)
 
 ## Purpose
 
-The Iterative Development Cycle provides a controlled, repeatable method for investigating and changing a codebase. Each iteration produces a numbered output snapshot and compares it with the immediately preceding snapshot. The latest snapshot becomes the baseline for the next iteration; there is no permanently fixed original snapshot.
+The Rotational Cycle (Iterative Development Cycle, IDC) provides a controlled, repeatable method for accomplishing tasks and advancing a codebase. Each iteration produces a numbered output snapshot and compares it with the immediately preceding snapshot. The latest snapshot becomes the baseline for the next iteration; there is no permanently fixed original snapshot.
 
-The cycle is designed to make cause and effect visible. A small controlled change, consistent execution conditions, and preserved outputs allow the Engineer to distinguish behavior caused by a modification from unrelated changes or noise. The IDC is independent of the Data Interchange Cycle: development and validation can proceed without transferring repository state after every iteration.
+The cycle is designed to make cause and effect visible. A small controlled change, consistent execution conditions, and preserved outputs allow the Engineer to distinguish behavior caused by a modification from unrelated changes or noise. The Rotational Cycle is a self-contained development loop; development and validation do not require a repository transfer between iterations.
 
 ## Project configuration boundary
 
@@ -60,17 +60,17 @@ Use the project's configured snapshot naming convention and comparison command. 
 
 A successful Git commit is the trigger for an additional recovery checkpoint within the IDC:
 
-1. Immediately after each successful commit, run the repository's configured repository archive target. Do not defer this checkpoint until the Data Interchange Cycle or until a later development iteration.
+1. Immediately after each successful commit, run the repository's configured repository archive target. Do not defer this checkpoint until a later development iteration.
 2. Verify that archive creation succeeded and inspect its integrity and expected repository contents.
-3. Follow the project's configured archive overwrite behavior. Do not add versioning or external persistence unless the project configuration explicitly requires it.
-4. Record the archive's exact name, location, size, and checksum when useful for verification.
+3. Follow the project's configured archive overwrite behavior and recovery procedure. Do not assume that files in the Engineer's workbench persist merely because the archive does.
+4. Verify that the archive is readable and contains the expected repository files and Git database. Record its exact name, location, size, and checksum when useful for verification.
 
-The commit remains in Git even if archive creation fails, but the IDC post-commit checkpoint is incomplete until the archive is successfully generated and validated. Resolve the failure and rerun the archive step; do not create another commit merely to retry packaging.
+The commit remains in Git even if archive creation fails, but the Rotational Cycle post-commit checkpoint is incomplete until the archive is successfully generated and validated. Resolve the failure and rerun the archive step; do not create another commit merely to retry packaging.
 
 The project-specific configuration defines the exact archive target, its output name, overwrite behavior, and contents. Inspect those details before relying on it. In particular, distinguish tracked working-tree content from committed-only content, and identify whether untracked or ignored snapshots and generated files are excluded.
 
-This archive checkpoint belongs to the IDC because it protects the newly committed project state against loss of the temporary development environment. It is not an incremental Git bundle and does not replace the Data Interchange Cycle.
+This archive checkpoint belongs to the Rotational Cycle because it protects the newly committed project state against loss of the temporary development environment. It is a complete recovery archive, not an incremental Git bundle.
 
 ## Completion and limits
 
-A successful comparison is evidence about the behavior exercised by those runs; it is not proof that the entire application is correct. Record what was tested, what was not tested, and any remaining uncertainty. Validation does not itself authorize a commit, push, bundle creation, publication, or replacement of a persistent artifact. Commit authorization and incremental bundle delivery remain governed by the repository's change-control rules and the Data Interchange Cycle. The post-commit archive checkpoint is required once a commit has been made.
+A successful comparison is evidence about the behavior exercised by those runs; it is not proof that the entire application is correct. Record what was tested, what was not tested, and any remaining uncertainty. Validation does not itself authorize a commit, push, bundle creation, publication, or replacement of a persistent artifact. Follow the applicable authorization rules for each action. The post-commit archive checkpoint is required once a commit has been made.

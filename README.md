@@ -6,11 +6,67 @@
 
 - **Architect:** generally the human who owns the repository and directs the work.
 - **Engineer:** generally the AI or another human who inspects, implements, validates, and returns authorized changes.
-- **Data Interchange Cycle (`-dic-`):** transfers or synchronizes repository state between Architect and Engineer.
-- **Iterative Development Cycle (`-idc-`):** investigates and changes the code through repeatable runs and consecutive output snapshots.
-- The cycles are complementary but independent. Do not make one a prerequisite of the other.
+- **Translational Cycle (Data Interchange Cycle, DIC):** moves repository state and work between the Architect's persistent environment and the Engineer's workbench.
+- **Rotational Cycle (Iterative Development Cycle, IDC):** accomplishes tasks and advances development through repeated implementation, execution, testing, evaluation, and refinement.
+- The Rotational Cycle can operate independently. The Translational Cycle accommodates its results when work must move between environments; keep that relationship minimal rather than repeating rotational procedures.
+- The Architect primarily leads translation and the Engineer primarily leads rotation, but both participate in both cycles. See `README/015_collaboration_cycles_and_roles.md` for the collaboration model and Earth analogy.
 
-## Data Interchange Cycle (`-dic-`)
+## Rotational Cycle — operational flow
+
+Use this loop to accomplish and validate work in the Engineer's workbench. It can run independently; a transfer is not implied by a completed rotation.
+
+```mermaid
+flowchart TD
+    A([Assigned task]) --> B[Inspect repository, scope, and instructions]
+    B --> C[Make a bounded change]
+    C --> D[Run checks and inspect evidence]
+    D --> E{Objective met and validation sufficient?}
+    E -- No --> F[Diagnose, revise, or roll back]
+    F --> C
+    E -- Yes --> G{Commit authorized?}
+    G -- No --> H[Preserve changes and report]
+    G -- Yes --> I[Stage intended files and commit]
+    I --> J[Run make zr immediately]
+    J --> K{ZIP integrity and contents verified?}
+    K -- No --> L[Fix archive issue and retry make zr]
+    L --> K
+    K -- Yes --> M([Recovery checkpoint complete])
+```
+
+Operational guardrails: preserve unrelated changes; validate before committing; never commit without authorization; after every successful commit, run `make zr` and verify `trading_intel.zip`. The ZIP is a complete local recovery checkpoint. **Keep it in the workbench; do not upload it as the routine transfer artifact.**
+
+## Translational Cycle — operational flow
+
+Use this loop only when repository state must move between environments. Prefer an incremental Git bundle when both repositories have compatible, trustworthy history; use a complete repository transfer for bootstrap or recovery.
+
+```mermaid
+flowchart TD
+    A([Transfer required]) --> B{Compatible, trustworthy Git history?}
+    B -- No --> C[Transfer complete repository with .git when history is required]
+    C --> D[Verify root, .git/HEAD, latest commit, and worktree]
+    D --> Z([Translation complete])
+    B -- Yes --> E{Direction?}
+    E -- Outgoing --> F{Changes validated, committed, and authorized?}
+    F -- No --> G[Return to Rotational Cycle; do not package]
+    F -- Yes --> H[Verify bundle base is an ancestor of HEAD; confirm clean source]
+    H --> I[Run make cgb]
+    I --> J[Inspect bundle and SHA-256]
+    J --> K[Choose collision-free Library filename]
+    K --> L[Upload additively and verify path, size, and hash]
+    L --> Z
+    E -- Incoming --> M[Inspect worktree; verify bundle and hash]
+    M --> N[Inspect incoming changes and destinations]
+    N --> O{Explicit authorization to apply?}
+    O -- No --> P[Stop and preserve state]
+    O -- Yes --> Q[Run make ab and verify repository]
+    Q --> Z
+```
+
+Operational guardrails: outgoing routine transfers use `make cgb`, then an additive, collision-safe Library upload and verification. Incoming bundles require inspection and explicit authorization before `make ab`; that target does not apply incoming deletions. Complete transfers must preserve Git history when required.
+
+**Do not confuse the two artifacts:** `make zr` creates the full workbench recovery ZIP; `make cgb` creates the incremental transfer bundle. A recovery checkpoint does not trigger an upload. When a transfer is required, deliver the bundle—not another complete ZIP.
+
+## Translational Cycle — Data Interchange Cycle (DIC)
 
 Choose the transfer method according to repository state:
 
@@ -33,7 +89,7 @@ For routine bundle exchange:
 - Outgoing bundle: ensure authorized work is validated and committed; confirm the configured base commit in `sh/lib.sh` exists and is an ancestor of `HEAD`; run `make cgb`; inspect `update.bundle` and its hash. Then inspect the destination and select the next available filename using the general collision rule: `update.bundle`, then `update(1).bundle`, `update(2).bundle`, and so on. Do not rely on automatic duplicate naming or timestamps. Upload additively to `/finances/030_trading_intel/`; never overwrite or delete existing bundles. The Engineer's `/mnt/data/` workspace is private and inaccessible to the Architect; a sandbox link is not delivery. Verify and report the exact Library path, size, and SHA-256 hash.
 - A complete archive transfer must preserve `.git/` when history is required. After extraction, verify the repository root, `.git/HEAD`, expected latest commit, and working-tree state.
 
-## Iterative Development Cycle (`-idc-`)
+## Rotational Cycle — Iterative Development Cycle (IDC)
 
 The cycle is iterative. There is no permanently fixed original snapshot: every new snapshot becomes the baseline for the next iteration. Always compare the two most recent snapshots.
 
@@ -60,9 +116,9 @@ Use the project's established snapshot naming convention. Compare the newest sna
 
 ### Post-commit recovery archive
 
-Immediately after **every successful Git commit**, run the project's configured repository archive target and verify the archive's integrity. The archive target may replace its previous project-local archive; do not invent a versioning or external-persistence step unless the project configuration explicitly requires one. This is an IDC checkpoint, not a DIC bundle operation. If archive creation or validation fails, the commit remains valid but the IDC checkpoint is incomplete; resolve the failure and retry the archive step without making another commit.
+Immediately after **every successful Git commit**, run the project's configured repository archive target and verify the archive's integrity before continuing the Rotational Cycle. For Trading Intel, run `make zr` and verify `trading_intel.zip`; this project-local ZIP is the workbench recovery checkpoint, not a DIC bundle. If archive creation or validation fails, the commit remains valid but the recovery checkpoint is incomplete; resolve the failure and retry the archive step without making another commit.
 
-For this repository, consult `README/040_trading_intel_project.md` for the configured Data Generator, data-preparation procedure, snapshot normalization, and archive target and contents. See `README/030_iterative_development_cycle.md` for the complete generic IDC procedure.
+For this repository, consult `README/040_trading_intel_project.md` for the configured Data Generator, data-preparation procedure, snapshot normalization, and archive recovery procedure. See `README/030_iterative_development_cycle.md` for the complete generic Rotational Cycle procedure.
 
 ## Safety and working rules
 

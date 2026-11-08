@@ -1,8 +1,8 @@
-# Data Interchange Cycle (`-dic-`)
+# Translational Cycle — Data Interchange Cycle (DIC)
 
 ## Purpose
 
-The Data Interchange Cycle transfers and synchronizes repository state between the Architect and Engineer. It governs workspace availability, Git identity, and controlled exchange of changes. It does not prescribe how implementation work is developed or validated.
+The Translational Cycle transfers and synchronizes repository state between the Architect and Engineer. It governs workspace availability, Git identity, and controlled exchange of changes. It does not prescribe how implementation work is developed or validated. When an exchange carries completed development work, confirm that it has reached its authorized handoff point through the Rotational Cycle; this document governs only the transfer.
 
 Git history is the authoritative development record. A complete archive is a bootstrap or recovery mechanism; incremental Git bundles are the routine exchange mechanism when both repositories share compatible history.
 

@@ -30,7 +30,7 @@ The viewer's default input is configured in the script as `data/view_lots.jsonl`
 
 The root `README.md` is the AI-oriented entry point generated from `README/000_ai_entry_point.md`. The remaining numbered modules under `README/` provide detailed explanations and procedures for both human readers and AI agents. See `README/010_overview.md` for the documentation hierarchy and module map.
 
-## Trading Intel-specific IDC configuration
+## Trading Intel-specific Rotational Cycle configuration
 
 This section supplies the project-specific settings required by the generic procedure in `README/030_iterative_development_cycle.md`. When reusing the generic IDC documentation in another project, replace this configuration section with that project's commands and output contract.
 
@@ -74,6 +74,23 @@ Immediately after every successful Git commit in the IDC, run:
 
 The target creates `trading_intel.zip` in the repository root. Its current `zip_repository()` implementation packages Git-tracked working-tree files together with `.git/`. It reads tracked path names from `git ls-files` and includes the current working-tree contents of those paths. Therefore, modified tracked files that remain uncommitted can appear in the archive; inspect `git status --short` and understand that state before packaging. Untracked and ignored files are not included. In particular, numbered `*.diff` snapshots are ignored and are not preserved by this ZIP target.
 
-The target creates `trading_intel.zip` in the project root and replaces that project-local ZIP each time it runs. No version numbering or external copy is currently required by this project configuration. Whether the project-local archive survives a long pause or environment reset remains to be confirmed separately; do not add a persistence step until that behavior has been tested and a policy has been decided. Verify the ZIP integrity after generation. If archive creation or validation fails, the commit remains in place but the IDC archive checkpoint is incomplete. Retry the archive step after resolving the failure; do not make another commit just to retry it.
+The target creates `trading_intel.zip` in the project root and replaces that project-local ZIP each time it runs. Run `make zr` immediately after every successful Git commit. Verify the ZIP with `unzip -t trading_intel.zip` and confirm that it contains the project files and `.git/` database. Do not continue the Rotational Cycle until this checkpoint has been created and verified. If archive creation or validation fails, the commit remains valid but the recovery checkpoint is incomplete; resolve the failure and retry `make zr` without making another commit.
 
-The archive is assembled from Git-tracked working-tree files plus `.git/`. It therefore includes the current contents of tracked files even if they have uncommitted modifications. Untracked and ignored files are excluded, including numbered `*.diff` snapshots. This is a full tracked-repository recovery checkpoint, not an incremental Git bundle. `make cgb` and bundle delivery remain part of the separate Data Interchange Cycle.
+The archive is assembled from Git-tracked working-tree files plus `.git/`. It includes the current contents of tracked files, not necessarily only the committed versions. Therefore, to make the archive represent exactly the latest commit, verify that the tracked working tree is clean before running `make zr`. Tracked modifications present at archive time are included; untracked and ignored files are excluded, including numbered `*.diff` snapshots. Ensure that any file required for recovery is tracked before relying on this archive. This is a complete tracked-repository recovery checkpoint, not an incremental Git bundle.
+
+### Workbench persistence and restoration
+
+The Engineer's workbench under `/mnt/data` is an ephemeral execution environment. Project files, temporary dependencies, and the Git database may disappear after a pause, reset, or reinitialization. Do not assume that an existing checkout or its `.git/` directory will remain available. The Architect's persistent Library remains the durable project store; the workbench archive is the recovery mechanism for rebuilding the Engineer's working copy.
+
+The initial complete archive downloaded from the Library is kept outside the project directory as `trading_intel(10).zip`. Treat that archive as an unchanged bootstrap copy; do not overwrite it. Once development has produced a committed state and `make zr` has created a verified project-local `trading_intel.zip`, the project-local archive becomes the current workbench recovery point. Each later successful commit followed by a successful `make zr` replaces that recovery point with a newer one. Incremental Git bundles are for repository interchange and must not be treated as the immediate substitute for this post-commit recovery archive; bundles in the workbench may themselves be lost.
+
+Observed workbench behavior indicates that ZIP archives have persisted in `/mnt/data`, including at the project-directory level, even when other workbench files have disappeared. Treat this as the tested recovery behavior for this workflow, not as a guarantee that arbitrary workbench files persist.
+
+To restore the latest archived project after the checkout and Git database have disappeared:
+
+1. Locate the latest `trading_intel.zip` that was created by `make zr` inside the project directory.
+2. Move or copy that ZIP one level up, outside the project directory, so extraction does not target the archive's former location.
+3. Extract the ZIP into `/mnt/data`. The archive contains a top-level `trading_intel/` directory, so extraction recreates the project directory and its `.git/` database.
+4. Verify the restored repository root, `.git/HEAD`, latest commit, working-tree state, and ZIP integrity before continuing. Use `git rev-parse --show-toplevel`, `git log -1`, and `git status --short` from the restored project root.
+
+Do not use the unchanged `trading_intel(10).zip` as the latest recovery point after newer committed work exists. It remains an initial fallback only. The current project-local `trading_intel.zip` is the archive to use for restoring the latest checkpoint.
