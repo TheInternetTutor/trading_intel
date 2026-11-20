@@ -303,7 +303,7 @@ function generate_lot_state_report()
 
   return 0;
 }
-alias vl.glsr="generate_lot_state_report '## Report' 1- ${sort_by_sym} -e '.*'";
+alias vl.glsr="generate_lot_state_report '## Report' 1- \${sort_by_sym} -e '.*'";
 
 #-----------------------------------------------------------------------
 function report_harvestable_lots()
