@@ -102,15 +102,30 @@ The archive is assembled from Git-tracked working-tree files plus `.git/`. It in
 
 Immediately after the verified `make zr` checkpoint, run `make cgb` after confirming that the configured base commit in `sh/lib.sh` exists and is an ancestor of `HEAD`. The target refuses to create a bundle when uncommitted source changes remain. Preserve unrelated changes safely and isolate them from the clean packaging worktree; never discard them to satisfy this requirement.
 
-Verify the resulting `update.bundle` with `git bundle verify` and calculate its SHA-256 hash. Copy it additively to `/finances/030_trading_intel/` in the Architect's persistent Library. Inspect the destination and use the next available collision-free name (`update.bundle`, `update(1).bundle`, `update(2).bundle`, and so on). Never overwrite, rename, or delete an existing Library artifact. Verify the exact destination path, file size, and SHA-256 hash. The bundle upload is mandatory after every successful commit; it is not conditional on a separate transfer request.
+Verify the resulting `update.bundle` with `git bundle verify` and calculate its SHA-256 hash. Copy it additively to `/finances/030_trading_intel/` in the Architect's persistent Library. Inspect the destination and use the next available collision-free name (`update.bundle`, `update(1).bundle`, `update(2).bundle`, and so on). Never overwrite, rename, or delete an existing Library artifact. Verify the exact destination path, file size, and SHA-256 hash. The bundle upload is mandatory after every successful commit; it is not conditional on a separate transfer request. For incoming work, retrieve the selected bundle from the same Library folder, copy it into the project root using the configured incoming filename, and preserve the original Library artifact unchanged. Then follow the incoming-bundle verification and application procedure in the Data Interchange Cycle documentation.
 
 #### Restoration
 
-To restore the latest archived project after the checkout and Git database have disappeared:
+When the project checkout or its Git database must be rebuilt, select the newest valid `trading_intel.zip` from the available recovery locations. Do not assume that the project-local archive is automatically the newest: the Architect may have supplied a later archive containing substantial work performed outside the Engineer's workbench.
 
-1. Locate the latest `trading_intel.zip` created by `make zr` inside the project directory, if it remains available.
-2. If the ZIP must be staged outside the project directory before extraction, **copy it** to an appropriate location outside the project directory. Do not move or delete the project-local original as part of this procedure. Preserve the staged copy after restoration unless the Architect explicitly authorizes its deletion.
-3. Extract the staged or otherwise available ZIP into `/mnt/data`. The archive contains a top-level `trading_intel/` directory, so extraction recreates the project directory and its `.git/` database.
-4. Verify the restored repository root, `.git/HEAD`, latest commit, working-tree state, and ZIP integrity before continuing. Use `git rev-parse --show-toplevel`, `git log -1`, and `git status --short` from the restored project root.
+##### Recovery archive discovery and selection
 
-Never assume that an external bootstrap archive is disposable after extraction. Preserve it unchanged until the Architect explicitly instructs that it may be erased. The current project-local `trading_intel.zip` is the archive to use for restoring the latest IDC recovery checkpoint; incremental Git bundles remain the routine DIC interchange artifacts.
+Inspect all available copies of `trading_intel.zip` in these locations, in this preferred candidate order:
+
+1. **Project directory:** the `trading_intel.zip` located at the root of the project directory. This is the expected first candidate and will often be the newest routine recovery checkpoint.
+2. **Architect-controlled persistent storage:** copies in the Architect's persistent Library (the Trading Intel project folder, `/finances/030_trading_intel/`) and any Architect-controlled workbench or staging area available to the Engineer. These may contain later Architect-side changes that were never present in the Engineer's project directory.
+3. **Other external locations:** any other available ZIP archive outside both the project directory and the Engineer's workbench or virtual workspace. Treat these as lower-priority discovery locations, not as automatically obsolete copies.
+
+For every candidate, record its full path, file size, and filesystem modification timestamp. Display and compare all timestamps in **Eastern US time (`America/New_York`)**, including the applicable EST or EDT offset. Do not compare timestamps displayed in different time zones or rely on an unqualified local-time display. The newest timestamp identifies the first archive to validate, regardless of its location or its position in the preferred candidate order. The location order expresses the expected likelihood of finding the best archive; it does not override timestamp evidence.
+
+Validate candidates from newest to oldest with `unzip -t`. If the newest candidate is missing, unreadable, or fails ZIP integrity validation, reject that candidate for restoration and test the next-newest one. Preserve every original archive unchanged. If timestamps are identical or their ordering cannot be established reliably, compare the candidates' embedded Git state (latest commit and repository status where recoverable) and ask the Architect when the correct source still cannot be determined. Do not silently choose one in an unresolved tie.
+
+##### Restore from the selected archive
+
+1. Select the newest candidate that passed ZIP integrity validation.
+2. Copy the selected archive to a safe staging location if needed. Do not move, rename, overwrite, or delete the original archive. Preserve the staged copy as well unless the Architect explicitly authorizes another disposition.
+3. Extract the selected archive into the Engineer's workbench root, `/mnt/data`. The archive contains a top-level `trading_intel/` directory, so extraction recreates `/mnt/data/trading_intel/` and its `.git/` database. If that destination already exists, inspect and preserve its contents; do not overwrite an existing project directory without authorization.
+4. Verify the restored repository root, `.git/HEAD`, latest commit, working-tree state, and archive integrity before continuing. From the restored project root, use `git rev-parse --show-toplevel`, `git log -1`, and `git status --short`.
+5. Report which archive was selected, its full source path, its Eastern-time modification timestamp, its size, and its SHA-256 hash. Also report any candidates rejected or any locations that could not be inspected.
+
+The selected ZIP restores the source tree and Git repository state captured in that archive. It does not restore untracked or ignored files excluded by the archive-generation target, nor temporary dependencies or external data that were not packaged. Incremental Git bundles remain the routine DIC interchange artifacts; they are not substitutes for choosing and validating the complete recovery ZIP when rebuilding the project and its Git database.

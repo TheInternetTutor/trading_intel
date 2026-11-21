@@ -37,6 +37,6 @@ This resilience depends on preserving the shared history and the required refere
 - Prefer a complete repository transfer when the Engineer's workspace is new, unavailable, wiped, or cannot be reconciled safely.
 - Keep bundles additive in persistent storage; do not overwrite, rename, or delete earlier transfer artifacts. Use collision-safe sequential filenames.
 - Verify each bundle's integrity and record its size and hash before delivery.
-- Upload each verified bundle to `/finances/030_trading_intel/` and verify its exact Library path, size, and SHA-256 hash. A file left only in the ephemeral `/mnt/data/` workbench is not delivered.
+- Deliver each verified bundle additively to the project's configured persistent destination and verify its exact destination path, size, and SHA-256 hash. A file left only in a temporary workbench is not delivered.
 - Advance the reference only to a commit already present in both repositories and confirmed as an ancestor of both current tips.
 - Preserve at least one durable complete repository copy so ephemeral workspaces can be rebuilt independently of any single incremental bundle.
