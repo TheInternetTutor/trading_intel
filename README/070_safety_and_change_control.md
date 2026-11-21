@@ -10,6 +10,7 @@
 
 - Do not run production data acquisition, apply an incoming bundle, create a commit, push, or overwrite a persistent artifact without the required authorization.
 - Authorization to edit does not automatically authorize committing, packaging, publishing, or persistent delivery. Follow the specific scope of the Architect's instruction.
+- When the Architect explicitly authorizes a commit and directs the IDC, the documented post-commit `make zr` recovery checkpoint and `make cgb` bundle upload are required parts of that authorized sequence. Do not treat the bundle handoff as a separate optional transfer decision.
 - Do not add a Git remote or push unless explicitly authorized.
 
 ## Preserve state and evidence

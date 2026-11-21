@@ -12,10 +12,9 @@ Git history is the authoritative development record. A complete archive is a boo
 2. Work from the repository root, where the project `makefile` and `.git/` directory reside.
 3. Verify the repository root and current state with `git rev-parse --show-toplevel`, `git status --short`, and `git log -1`.
 4. In a newly created execution environment, run `make itd` before other Make targets that rely on refresh triggers. This initializes temporary trigger dependencies declared by the included Make modules.
-5. Run `make ugu` to remove repository-local `user.name` and `user.email` overrides. Do this before configuring the global identity because local values can override global values.
-6. Configure your own global Git identity in your development environment. Set `user.name` and `user.email` to the identity you use when contributing, whether you are a human developer or an AI operating independently. For example: `git config --global user.name "Your Name"` and `git config --global user.email "you@example.com"`. Use an identity that belongs to you; never attribute commits to another person or contributor.
-7. Verify the effective identity and its source with `git config --show-origin --get user.name`, `git config --show-origin --get user.email`, `git var GIT_AUTHOR_IDENT`, and `git var GIT_COMMITTER_IDENT`. Confirm that the effective values identify you as the contributor, not another person.
-8. Do not create commits until the intended author and committer identities have been verified.
+5. Verify the repository-local Git identity. Sage's established identity is `Sage (ChatGPT) <sage@chatgpt.invalid>`. If it is absent or incorrect, configure it with `git config --local user.name "Sage (ChatGPT)"` and `git config --local user.email "sage@chatgpt.invalid"`.
+6. Keep Sage's identity repository-local; do not change the Architect's global Git identity or use the Architect's name/email for Sage-authored commits. `make ugu` removes repository-local overrides, so if it is run during initialization, restore the established Sage identity immediately afterward.
+7. Verify the effective identity and its source with `git config --show-origin --get user.name`, `git config --show-origin --get user.email`, `git var GIT_AUTHOR_IDENT`, and `git var GIT_COMMITTER_IDENT`. Do not create a Sage-authored commit until both author and committer resolve to the established Sage identity.
 
 ## Choose a transfer method
 
@@ -41,8 +40,8 @@ A bundle that changes `apply_bundle()` cannot use its own new implementation to 
 
 ## Create and deliver an outgoing bundle
 
-1. Complete and validate the authorized changes.
-2. Review `git status --short` and `git diff`; commit only the intended files with the required authorization.
+1. This outgoing handoff is mandatory after every successful commit; it is not conditional on a separate transfer request. Complete and validate the authorized changes under the Rotational Cycle.
+2. Review `git status --short` and `git diff`; commit only the intended files with the required authorization. Preserve and isolate unrelated changes so the post-commit packaging worktree can be clean; restore them after the bundle is created and delivered.
 3. Confirm that the base commit configured in `create_git_bundle()` in `sh/lib.sh` exists and is an ancestor of `HEAD`.
 4. Ensure there are no uncommitted source changes. The local `.update.bundle.sha256` marker is receiver-specific state and is excluded from the outgoing bundle cleanliness check.
 5. Run `make cgb` to create and verify `update.bundle` in the Engineer's workspace.
@@ -51,7 +50,7 @@ A bundle that changes `apply_bundle()` cannot use its own new implementation to 
 8. Copy the bundle additively into the Architect's persistent Library at `/finances/030_trading_intel/`. The Engineer's `/mnt/data/` workspace is private to the execution environment and is not a delivery location. Never overwrite, rename, or delete an existing Library bundle.
 9. Verify the exact resulting Library filename, path, size, and SHA-256 hash, and report them.
 
-A sandbox link or a path under the Engineer's `/mnt/data/` is not a substitute for placing the artifact in the Architect's Library.
+A sandbox link or a path under the Engineer's `/mnt/data/` is not a substitute for placing the artifact in the Architect's Library. If unrelated local changes prevent `make cgb` from running, preserve them safely and isolate them from the clean packaging worktree; never discard them.
 
 ## Complete repository transfer
 

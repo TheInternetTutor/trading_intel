@@ -13,7 +13,7 @@ DIC and IDC remain valid technical abbreviations. Translational Cycle and Rotati
 
 ## The Earth analogy
 
-Earth simultaneously rotates on its axis and revolves around the Sun. Rotation produces the familiar daily cycle of day and night; revolution marks the larger yearly journey. People can experience and understand rotation without being aware of Earth's revolution. In the same way, the Engineer can carry out many Rotational Cycles—accomplishing tasks and improving the software—without needing to think about the Translational Cycle. Translation is the larger movement that transfers work between environments and accommodates the results of development when an exchange is needed. The two cycles are distinct, coordinated loops, not competing processes.
+Earth simultaneously rotates on its axis and revolves around the Sun. Rotation produces the familiar daily cycle of day and night; revolution marks the larger yearly journey. In the same way, the Engineer performs the Rotational Cycle to develop and validate changes, while the Translational Cycle carries each successfully committed result from the temporary workbench to the persistent Library. The two cycles are distinct, coordinated loops, not competing processes.
 
 ## Architect and Engineer responsibilities
 
@@ -25,6 +25,6 @@ These are primary responsibilities, not exclusive ownership. The Architect parti
 
 ## Relationship and coupling
 
-The Rotational Cycle can operate independently and does not need to depend on or explain the Translational Cycle. The Translational Cycle must accommodate rotational work when developed changes are prepared for exchange, so it may refer to the Rotational Cycle where necessary.
+The Rotational Cycle owns implementation and validation. The Translational Cycle owns the post-commit transfer of the validated, authorized result. A successful commit triggers that transfer automatically; it is not deferred until a separate transfer request.
 
-Keep that relationship loosely coupled. A translational procedure should state only what it needs to know about development readiness and should not reproduce rotational procedures. Detailed development steps belong with the Rotational Cycle. The Rotational Cycle should not acquire a reciprocal dependency merely to explain how its results may later be transferred.
+Keep that relationship loosely coupled. A translational procedure should state only what it needs to know about commit readiness, bundle creation, and delivery; it should not reproduce rotational development procedures. Detailed development steps belong with the Rotational Cycle.

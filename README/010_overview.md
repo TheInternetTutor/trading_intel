@@ -27,14 +27,14 @@ The Makefile and current source code remain authoritative for actual command beh
 
 The Translational Cycle governs how the Architect and Engineer exchange repository state and completed work. The Architect generally supplies a complete repository when the Engineer's workspace is new or unavailable. During routine collaboration, the Engineer generally returns incremental Git bundles containing authorized, committed changes.
 
-The Translational Cycle moves repository state between environments. When it needs to account for development work, it should refer to the Rotational Cycle only as much as necessary; development procedures remain with that cycle. See [Data Interchange Cycle](020_data_interchange_cycle.md).
+The Translational Cycle moves committed repository state from the Engineer's workbench to the Architect's persistent Library. Every successful commit triggers the outgoing bundle handoff; the detailed implementation and validation procedures remain with the Rotational Cycle. See [Data Interchange Cycle](020_data_interchange_cycle.md).
 
 ### Rotational Cycle — Iterative Development Cycle (IDC)
 
-The Rotational Cycle governs how the Engineer investigates, modifies, executes, and evaluates the software. It uses a project-configured Data Generator to produce standardized analysis data, controlled changes, repeatable runs, and numbered output snapshots. Each new snapshot is compared with the immediately preceding snapshot; the newest snapshot then becomes the baseline for the next iteration. After every successful Git commit, the Rotational Cycle requires a verified workbench recovery archive checkpoint.
+The Rotational Cycle governs how the Engineer investigates, modifies, executes, and evaluates the software. It uses a project-configured Data Generator to produce standardized analysis data, controlled changes, repeatable runs, and numbered output snapshots. Each new snapshot is compared with the immediately preceding snapshot; the newest snapshot then becomes the baseline for the next iteration. After every successful Git commit, it requires both a verified workbench recovery ZIP and a verified incremental Git bundle uploaded to the Architect's persistent Library.
 
 The Rotational Cycle can operate independently of translation. Its concern is accomplishing tasks and advancing the software through controlled development and evidence-based validation, not transferring repository state. See [Iterative Development Cycle](030_iterative_development_cycle.md).
 
 ## Relationship
 
-The cycles are deliberately loosely coupled, but their relationship is asymmetric. Rotation does not need to depend on translation. Translation must accommodate the results of rotation when developed work is ready to move between environments, without duplicating the rotational procedures. Many rotations may occur during a longer translational journey.
+The cycles are deliberately distinct but coordinated. Development and validation remain within rotation; after each successful commit, translation carries that committed state to the persistent Library. The post-commit handoff does not duplicate the development procedure: it packages and delivers the committed result.

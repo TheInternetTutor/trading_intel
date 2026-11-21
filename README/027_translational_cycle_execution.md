@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Use this procedure only when repository state must move between the Architect's persistent environment and the Engineer's workbench. Routine exchanges use incremental Git bundles; complete repository transfers are reserved for bootstrap or recovery.
+Use this procedure for the mandatory outgoing handoff after every successful commit, moving repository state from the Engineer's workbench to the Architect's persistent Library. Incremental Git bundles are the routine mechanism; complete repository transfers are reserved for bootstrap or recovery.
 
 ## Operational flow
 
 ```mermaid
 flowchart TD
-    A([Start: transfer is required]) --> B{Does the receiving workspace have compatible, trustworthy Git history?}
+    A([Successful commit: outgoing handoff required]) --> B{Does the receiving workspace have compatible, trustworthy Git history?}
     B -- No --> C[Transfer complete repository, preserving .git when history is required]
     C --> D[Extract and verify repository root, .git/HEAD, latest commit, and worktree state]
     D --> Z([Translation complete])
@@ -35,12 +35,12 @@ flowchart TD
 
 ## Engineer-to-Architect transfer
 
-1. Confirm that a transfer is actually required. A successful commit and its local recovery checkpoint do not automatically require a transfer.
-2. Confirm the work is validated, committed, and authorized for exchange. Preserve unrelated worktree changes; `make cgb` refuses uncommitted source changes.
+1. Every successful commit triggers this outgoing handoff. It is not conditional on a separate transfer request.
+2. Complete the IDC post-commit `make zr` recovery checkpoint first. Confirm the work is validated, committed, and authorized. Preserve and isolate unrelated worktree changes so the packaging worktree is clean; `make cgb` refuses uncommitted source changes.
 3. Verify that the configured bundle base commit exists and is an ancestor of `HEAD`.
 4. Run `make cgb`. Inspect `update.bundle`, run bundle verification, and calculate its SHA-256 hash.
 5. Inspect the persistent destination before naming the artifact. Use `update.bundle` if available; otherwise use the next available integer suffix, such as `update(1).bundle`. Never overwrite or delete an existing bundle.
-6. Upload the incremental bundle to `/finances/030_trading_intel/`. Verify and report its exact Library path, size, and SHA-256 hash.
+6. Upload the incremental bundle to `/finances/030_trading_intel/`. Verify and report its exact Library path, size, and SHA-256 hash. If unrelated changes prevent bundle creation, preserve and isolate those changes without discarding them, complete the handoff, and restore them afterward.
 
 ## Architect-to-Engineer transfer
 
@@ -55,4 +55,4 @@ Use a complete repository transfer when the receiving workspace is new, unavaila
 
 ## Hard boundary
 
-`make zr` creates the Engineer's complete, local workbench recovery ZIP. `make cgb` creates the incremental transfer bundle. **Never upload the recovery ZIP as a substitute for the routine Git bundle.** The ZIP protects against loss of the ephemeral workbench; the bundle carries committed changes between the two environments.
+`make zr` creates the Engineer's complete, local workbench recovery ZIP. `make cgb` creates the incremental transfer bundle. **Both are required after every successful commit.** Keep the ZIP in the workbench; upload the bundle additively to the persistent Library. The ZIP protects against loss of the ephemeral workbench; the bundle carries committed changes between the two environments.

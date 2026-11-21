@@ -56,21 +56,23 @@ After the first snapshot, repeat the following stages for each controlled modifi
 
 Use the project's configured snapshot naming convention and comparison command. A snapshot filename identifies one execution, not a comparison between two executions. Compare consecutive snapshots only: the newest snapshot against the immediately preceding snapshot. Do not create pair-named comparison files unless a separate requirement calls for them; the numbered files identify individual executions.
 
-## Post-commit recovery archive checkpoint
+## Post-commit recovery and synchronization handoff
 
-A successful Git commit is the trigger for an additional recovery checkpoint within the IDC:
+A successful Git commit triggers two mandatory post-commit artifacts and their respective destinations:
 
-1. Immediately after each successful commit, run the repository's configured repository archive target. Do not defer this checkpoint until a later development iteration.
-2. Verify that archive creation succeeded and inspect its integrity and expected repository contents.
-3. Follow the project's configured archive overwrite behavior and recovery procedure. Do not assume that files in the Engineer's workbench persist merely because the archive does.
-4. Verify that the archive is readable and contains the expected repository files and Git database. Record its exact name, location, size, and checksum when useful for verification.
+1. After the commit, preserve and isolate any unrelated worktree changes without discarding them. The tracked packaging worktree must be clean so both artifacts represent the committed state and the bundle target can run.
+2. Immediately after each successful commit, run the repository's configured recovery archive target. Do not defer this checkpoint until a later development iteration.
+3. Verify that archive creation succeeded and inspect its integrity and expected repository contents. Keep the recovery archive in the Engineer's workbench.
+4. Run the configured incremental Git bundle target. Verify the bundle and calculate its SHA-256 hash.
+5. Upload the bundle additively to the Architect's persistent Library. Never overwrite, rename, or delete an earlier bundle. Verify the exact Library path, size, and SHA-256 hash.
+6. Follow the project's configured archive overwrite behavior and recovery procedure. Do not assume that files in the Engineer's workbench persist merely because the archive does. Restore safely preserved unrelated changes after both artifacts have been created and delivered.
 
-The commit remains in Git even if archive creation fails, but the Rotational Cycle post-commit checkpoint is incomplete until the archive is successfully generated and validated. Resolve the failure and rerun the archive step; do not create another commit merely to retry packaging.
+The commit remains in Git if packaging or delivery fails, but the post-commit handoff is incomplete until both artifacts have been verified at their required destinations. Resolve the failure and retry the failed step; do not create another commit merely to retry packaging or delivery.
 
 The project-specific configuration defines the exact archive target, its output name, overwrite behavior, and contents. Inspect those details before relying on it. In particular, distinguish tracked working-tree content from committed-only content, and identify whether untracked or ignored snapshots and generated files are excluded.
 
-This archive checkpoint belongs to the Rotational Cycle because it protects the newly committed project state against loss of the temporary development environment. It is a complete recovery archive, not an incremental Git bundle.
+The recovery archive protects the newly committed project state against loss of the temporary development environment. The incremental bundle carries the committed change history to the Architect's persistent Library. They are complementary artifacts, not substitutes for one another.
 
 ## Completion and limits
 
-A successful comparison is evidence about the behavior exercised by those runs; it is not proof that the entire application is correct. Record what was tested, what was not tested, and any remaining uncertainty. Validation does not itself authorize a commit, push, bundle creation, publication, or replacement of a persistent artifact. Follow the applicable authorization rules for each action. The post-commit archive checkpoint is required once a commit has been made.
+A successful comparison is evidence about the behavior exercised by those runs; it is not proof that the entire application is correct. Record what was tested, what was not tested, and any remaining uncertainty. Validation does not itself authorize a commit or push. Once a commit is explicitly authorized and successfully created, however, both the configured recovery archive and the outgoing incremental bundle handoff are mandatory post-commit steps. The archive stays in the workbench; the verified bundle is uploaded additively to the Architect's persistent Library. Follow the project's specific procedures for both artifacts.

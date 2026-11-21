@@ -82,15 +82,35 @@ The archive is assembled from Git-tracked working-tree files plus `.git/`. It in
 
 The Engineer's workbench under `/mnt/data` is an ephemeral execution environment. Project files, temporary dependencies, and the Git database may disappear after a pause, reset, or reinitialization. Do not assume that an existing checkout or its `.git/` directory will remain available. The Architect's persistent Library remains the durable project store; the workbench archive is the recovery mechanism for rebuilding the Engineer's working copy.
 
-The initial complete archive downloaded from the Library is kept outside the project directory as `trading_intel(10).zip`. Treat that archive as an unchanged bootstrap copy; do not overwrite it. Once development has produced a committed state and `make zr` has created a verified project-local `trading_intel.zip`, the project-local archive becomes the current workbench recovery point. Each later successful commit followed by a successful `make zr` replaces that recovery point with a newer one. Incremental Git bundles are for repository interchange and must not be treated as the immediate substitute for this post-commit recovery archive; bundles in the workbench may themselves be lost.
+#### Preserve everything outside the project directory
 
-Observed workbench behavior indicates that ZIP archives have persisted in `/mnt/data`, including at the project-directory level, even when other workbench files have disappeared. Treat this as the tested recovery behavior for this workflow, not as a guarantee that arbitrary workbench files persist.
+Treat every file and directory outside the project root as Architect-controlled material. **Preserve it unless the Architect explicitly instructs otherwise.** Do not delete, overwrite, rename, move, or repurpose an external file merely because it has been copied or extracted into the project, appears redundant, or is no longer needed for the current step. This rule applies to incoming ZIP archives, Git bundles, checksum files, exported artifacts, previous recovery copies, and other workbench files outside the project directory.
+
+When using an external archive to initialize or restore the project, extract or copy from it non-destructively. Keep the original external archive in place. A project-local copy or a newly generated project-local recovery archive is a separate artifact; creating or updating that copy does not authorize changing the external original. Only the Architect may authorize deletion or another disposition of an external artifact.
+
+#### Project-local recovery ZIP — part of the IDC
+
+The `make zr` target is the Trading Intel-specific post-commit recovery checkpoint required by the Rotational Cycle (IDC), as defined in `README/030_iterative_development_cycle.md` and `README/017_rotational_cycle_execution.md`. It is not the Translational Cycle (DIC) transfer mechanism; the incremental Git bundle serves that separate purpose. Both artifacts are mandatory after every successful commit.
+
+The target creates `trading_intel.zip` at the root of the project directory. Its current implementation packages Git-tracked working-tree files together with `.git/`. It reads tracked path names from `git ls-files` and includes the current working-tree contents of those paths. Therefore, modified tracked files that remain uncommitted can appear in the archive; inspect `git status --short` and understand that state before packaging. Untracked and ignored files are not included. In particular, numbered `*.diff` snapshots are ignored and are not preserved by this ZIP target.
+
+Immediately after every successful Git commit in the IDC, run `make zr`. The target replaces the existing `trading_intel.zip` **inside the project directory** each time it runs. This project-local replacement is the target's defined behavior and is permitted as part of the IDC checkpoint. It does not authorize overwriting or deleting any archive or other file outside the project directory, even if it has the same filename. Verify the ZIP with `unzip -t trading_intel.zip` and confirm that it contains the project files and `.git/` database. Do not continue the Rotational Cycle until this checkpoint has been created and verified. If archive creation or validation fails, the commit remains valid but the recovery checkpoint is incomplete; resolve the failure and retry `make zr` without making another commit.
+
+The archive is assembled from Git-tracked working-tree files plus `.git/`. It includes the current contents of tracked files, not necessarily only the committed versions. Therefore, to make the archive represent exactly the latest commit, verify that the tracked working tree is clean before running `make zr`. Tracked modifications present at archive time are included; untracked and ignored files are excluded, including numbered `*.diff` snapshots. Ensure that any file required for recovery is tracked before relying on this archive. This is a complete tracked-repository recovery checkpoint, not an incremental Git bundle.
+
+### Post-commit incremental bundle and Library delivery
+
+Immediately after the verified `make zr` checkpoint, run `make cgb` after confirming that the configured base commit in `sh/lib.sh` exists and is an ancestor of `HEAD`. The target refuses to create a bundle when uncommitted source changes remain. Preserve unrelated changes safely and isolate them from the clean packaging worktree; never discard them to satisfy this requirement.
+
+Verify the resulting `update.bundle` with `git bundle verify` and calculate its SHA-256 hash. Copy it additively to `/finances/030_trading_intel/` in the Architect's persistent Library. Inspect the destination and use the next available collision-free name (`update.bundle`, `update(1).bundle`, `update(2).bundle`, and so on). Never overwrite, rename, or delete an existing Library artifact. Verify the exact destination path, file size, and SHA-256 hash. The bundle upload is mandatory after every successful commit; it is not conditional on a separate transfer request.
+
+#### Restoration
 
 To restore the latest archived project after the checkout and Git database have disappeared:
 
-1. Locate the latest `trading_intel.zip` that was created by `make zr` inside the project directory.
-2. Move or copy that ZIP one level up, outside the project directory, so extraction does not target the archive's former location.
-3. Extract the ZIP into `/mnt/data`. The archive contains a top-level `trading_intel/` directory, so extraction recreates the project directory and its `.git/` database.
+1. Locate the latest `trading_intel.zip` created by `make zr` inside the project directory, if it remains available.
+2. If the ZIP must be staged outside the project directory before extraction, **copy it** to an appropriate location outside the project directory. Do not move or delete the project-local original as part of this procedure. Preserve the staged copy after restoration unless the Architect explicitly authorizes its deletion.
+3. Extract the staged or otherwise available ZIP into `/mnt/data`. The archive contains a top-level `trading_intel/` directory, so extraction recreates the project directory and its `.git/` database.
 4. Verify the restored repository root, `.git/HEAD`, latest commit, working-tree state, and ZIP integrity before continuing. Use `git rev-parse --show-toplevel`, `git log -1`, and `git status --short` from the restored project root.
 
-Do not use the unchanged `trading_intel(10).zip` as the latest recovery point after newer committed work exists. It remains an initial fallback only. The current project-local `trading_intel.zip` is the archive to use for restoring the latest checkpoint.
+Never assume that an external bootstrap archive is disposable after extraction. Preserve it unchanged until the Architect explicitly instructs that it may be erased. The current project-local `trading_intel.zip` is the archive to use for restoring the latest IDC recovery checkpoint; incremental Git bundles remain the routine DIC interchange artifacts.

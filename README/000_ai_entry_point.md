@@ -30,18 +30,21 @@ flowchart TD
     J --> K{ZIP integrity and contents verified?}
     K -- No --> L[Fix archive issue and retry make zr]
     L --> K
-    K -- Yes --> M([Recovery checkpoint complete])
+    K -- Yes --> M[Run make cgb and verify bundle]
+    M --> N[Upload bundle additively to persistent Library]
+    N --> O[Verify Library path, size, and SHA-256]
+    O --> P([Commit handoff complete])
 ```
 
-Operational guardrails: preserve unrelated changes; validate before committing; never commit without authorization; after every successful commit, run `make zr` and verify `trading_intel.zip`. The ZIP is a complete local recovery checkpoint. **Keep it in the workbench; do not upload it as the routine transfer artifact.**
+Operational guardrails: preserve unrelated changes; validate before committing; never commit without authorization. After every successful commit, run `make zr` and verify `trading_intel.zip`, then run `make cgb`, verify the incremental bundle, and upload it additively to `/finances/030_trading_intel/`. Verify the exact Library path, size, and SHA-256. The ZIP is the complete local recovery checkpoint; the bundle is the durable synchronization artifact. Both steps are mandatory after every commit, not conditional on a separately requested transfer.
 
 ## Translational Cycle — operational flow
 
-Use this loop only when repository state must move between environments. Prefer an incremental Git bundle when both repositories have compatible, trustworthy history; use a complete repository transfer for bootstrap or recovery.
+Use this loop for the mandatory outgoing handoff after every successful commit. Prefer an incremental Git bundle when both repositories have compatible, trustworthy history; use a complete repository transfer for bootstrap or recovery.
 
 ```mermaid
 flowchart TD
-    A([Transfer required]) --> B{Compatible, trustworthy Git history?}
+    A([Post-commit bundle handoff]) --> B{Compatible, trustworthy Git history?}
     B -- No --> C[Transfer complete repository with .git when history is required]
     C --> D[Verify root, .git/HEAD, latest commit, and worktree]
     D --> Z([Translation complete])
@@ -62,9 +65,9 @@ flowchart TD
     Q --> Z
 ```
 
-Operational guardrails: outgoing routine transfers use `make cgb`, then an additive, collision-safe Library upload and verification. Incoming bundles require inspection and explicit authorization before `make ab`; that target does not apply incoming deletions. Complete transfers must preserve Git history when required.
+Operational guardrails: every successful commit triggers an outgoing bundle handoff using `make cgb`, followed by an additive, collision-safe Library upload and verification. Incoming bundles require inspection and explicit authorization before `make ab`; that target does not apply incoming deletions. Complete transfers must preserve Git history when required.
 
-**Do not confuse the two artifacts:** `make zr` creates the full workbench recovery ZIP; `make cgb` creates the incremental transfer bundle. A recovery checkpoint does not trigger an upload. When a transfer is required, deliver the bundle—not another complete ZIP.
+**Do not confuse the two artifacts:** `make zr` creates the full workbench recovery ZIP; `make cgb` creates the incremental transfer bundle. Both are required after every successful commit. Keep the ZIP in the workbench; upload the bundle—not the ZIP—to the persistent Library.
 
 ## Translational Cycle — Data Interchange Cycle (DIC)
 
@@ -78,15 +81,13 @@ For a new Engineer workspace:
 1. Obtain and extract the repository or the agreed incoming bundle; work from the repository root.
 2. Verify `git rev-parse --show-toplevel`, `git status --short`, and `git log -1`.
 3. Run `make itd` to initialize temporary refresh-trigger dependencies before Make targets that rely on them.
-4. Run `make ugu` to remove repository-local identity overrides before configuring the global identity; local values can otherwise override the global values.
-5. Configure your own global Git identity in your development environment. Set `user.name` and `user.email` to the identity you use when contributing, whether you are a human developer or an AI operating independently. For example: `git config --global user.name "Your Name"` and `git config --global user.email "you@example.com"`. Use an identity that belongs to you; never attribute commits to another person or contributor.
-6. Verify identity and configuration origin with `git config --show-origin --get user.name`, `git config --show-origin --get user.email`, `git var GIT_AUTHOR_IDENT`, and `git var GIT_COMMITTER_IDENT`. Confirm that the effective values identify you as the contributor, not another person.
-7. Do not commit until the effective author and committer identities are correct.
+4. Verify the repository-local Git identity. For Sage, the established identity is `Sage (ChatGPT) <sage@chatgpt.invalid>`; configure it with `git config --local user.name "Sage (ChatGPT)"` and `git config --local user.email "sage@chatgpt.invalid"` if it is absent or incorrect. Keep this identity repository-local; do not change the Architect's global identity or use the Architect's name/email for Sage commits.
+5. Verify identity and configuration origin with `git config --show-origin --get user.name`, `git config --show-origin --get user.email`, `git var GIT_AUTHOR_IDENT`, and `git var GIT_COMMITTER_IDENT`. Do not commit until both author and committer resolve to the established Sage identity for Sage-authored work.
 
 For routine bundle exchange:
 
 - Incoming bundle: inspect and protect local changes; verify with `git bundle verify update.bundle`; compare `sha256sum update.bundle` with `.update.bundle.sha256` when the marker exists; inspect the intended changes. `make ab` applies incoming additions, modifications, and rename destinations since the common Git ancestor; it preserves paths absent from the bundle and does not apply deletions. It aborts on staged changes or conflicting local modifications/untracked destination files. Obtain explicit authorization before running it.
-- Outgoing bundle: ensure authorized work is validated and committed; confirm the configured base commit in `sh/lib.sh` exists and is an ancestor of `HEAD`; run `make cgb`; inspect `update.bundle` and its hash. Then inspect the destination and select the next available filename using the general collision rule: `update.bundle`, then `update(1).bundle`, `update(2).bundle`, and so on. Do not rely on automatic duplicate naming or timestamps. Upload additively to `/finances/030_trading_intel/`; never overwrite or delete existing bundles. The Engineer's `/mnt/data/` workspace is private and inaccessible to the Architect; a sandbox link is not delivery. Verify and report the exact Library path, size, and SHA-256 hash.
+- Outgoing bundle: after every successful authorized commit and its `make zr` checkpoint, confirm the configured base commit in `sh/lib.sh` exists and is an ancestor of `HEAD`; ensure the source worktree is clean; run `make cgb`; inspect `update.bundle` and its hash. Then inspect the destination and select the next available filename using the general collision rule: `update.bundle`, then `update(1).bundle`, `update(2).bundle`, and so on. Do not rely on automatic duplicate naming or timestamps. Upload additively to `/finances/030_trading_intel/`; never overwrite or delete existing bundles. The Engineer's `/mnt/data/` workspace is private and inaccessible to the Architect; a sandbox link is not delivery. Verify and report the exact Library path, size, and SHA-256 hash. If unrelated local changes exist, preserve them safely outside the packaging worktree and restore them after bundle creation; never discard them to satisfy the clean-worktree requirement.
 - A complete archive transfer must preserve `.git/` when history is required. After extraction, verify the repository root, `.git/HEAD`, expected latest commit, and working-tree state.
 
 ## Rotational Cycle — Iterative Development Cycle (IDC)
@@ -116,7 +117,7 @@ Use the project's established snapshot naming convention. Compare the newest sna
 
 ### Post-commit recovery archive
 
-Immediately after **every successful Git commit**, run the project's configured repository archive target and verify the archive's integrity before continuing the Rotational Cycle. For Trading Intel, run `make zr` and verify `trading_intel.zip`; this project-local ZIP is the workbench recovery checkpoint, not a DIC bundle. If archive creation or validation fails, the commit remains valid but the recovery checkpoint is incomplete; resolve the failure and retry the archive step without making another commit.
+Immediately after **every successful Git commit**, run the project's configured repository archive target and verify the archive's integrity. For Trading Intel, run `make zr` and verify `trading_intel.zip`. Then complete the mandatory DIC handoff: run `make cgb`, verify the incremental bundle, upload it additively to the Architect's persistent Library, and verify its path, size, and SHA-256. The ZIP is the workbench recovery checkpoint; the bundle is the durable synchronization artifact. If either packaging or delivery step fails, the commit remains valid but the post-commit handoff is incomplete; resolve the failure without making another commit.
 
 For this repository, consult `README/040_trading_intel_project.md` for the configured Data Generator, data-preparation procedure, snapshot normalization, and archive recovery procedure. See `README/030_iterative_development_cycle.md` for the complete generic Rotational Cycle procedure.
 
@@ -124,7 +125,7 @@ For this repository, consult `README/040_trading_intel_project.md` for the confi
 
 - Inspect the current repository state before acting; preserve unrelated changes.
 - Read the current Makefile rules before running targets with acquisition, repository, or other side effects. A target's presence in help does not prove it is safe or validated in the current environment.
-- Do not run production acquisition, apply an incoming bundle, commit, push, or overwrite persistent artifacts without the required authorization.
+- Do not run production acquisition, apply an incoming bundle, commit, push, or overwrite persistent artifacts without the required authorization. The post-commit bundle upload is additive and must never overwrite or delete an existing Library artifact.
 - Stage only files belonging to the authorized change. Do not add a remote or push unless explicitly authorized.
 - Keep execution evidence, source changes, validation, commits, user acceptance, packaging, and persistent delivery distinct. Report only what was actually performed and verified.
 
