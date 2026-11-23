@@ -22,6 +22,10 @@
 #   ${jq_filter}
 ##############################################################################
 
+# compatibility with mawk:
+# --field-separator='|' ==> -L"|"
+# --assign pnl=${pnl}         ==> -v pnl="{pnl}"
+
 #-----------------------------------------------------------------------
 cat <<-'#--documentation'
 VIEW LOTS — command/function reference
@@ -582,27 +586,28 @@ alias vl.upt='{
 }';
 
 #-----------------------------------------------------------------------
-function pnl_great_or_equal()
+function pnl_greater_or_equal()
 {
   local pnl=${1:--10};
   generate_lot_state_report                      \
   "## >= ${pnl}"                                 \
   1,2,3,4,5,6,7,8                                \
-  "4.1n"                               \
+  "4.1n"                                         \
   -e 10.HVT -e 20.PBA -e 40.BKE -e 50.LOS        \
   | awk                                          \
   --field-separator '|'                          \
-  --assign pnl=${pnl}                            \
+  -v pnl=${pnl}                                  \
   '{ 
     if ($4 >= pnl) print $0;
-  }'                  \
+  }'                                             \
   | grep --invert-match '30.LKD'                 \
   ;
   return ${?};
 }
-alias vl.pnlge=pnl_great_or_equal;
+alias vl.pnlge=pnl_greater_or_equal;
+# Retained legacy example; use vl.pnlge for the public interface.
 #.......................................................................
-function pnl_great_or_equal_1()
+function pnl_greater_or_equal_1()
 {
   local pnl=${1:--10};
   render_lots_view                     \
@@ -613,7 +618,7 @@ function pnl_great_or_equal_1()
   -e '15.HVT'                          \
   | awk                                \
   --field-separator '|'                \
-  --assign pnl=${pnl}                  \
+  -v pnl=${pnl}                        \
   '{ if ($4 >= pnl) print $0;}'        \
   | sort                               \
   --field-separator='|'                \
@@ -622,7 +627,356 @@ function pnl_great_or_equal_1()
   ;
   return ${?};
 }
-alias vl.pnlge1=pnl_great_or_equal_1;
+alias vl.pnlge1=pnl_greater_or_equal_1;
+
+#=======================================================================
+# Common post-filter for the standard lot-state report.
+# Keep columns 1-9 until filtering is complete; OPEN_DATE is field 9.
+function filter_lot_state_report()
+{
+  local report_label="${1:?*** MISSING REPORT LABEL! ***}";
+  local filter_type="${2:?*** MISSING FILTER TYPE! ***}";
+  local lower="${3:-}";
+  local upper="${4:-}";
+
+  local sort_by='4.1n';
+  local report_output;
+
+  # [ ${filter_type} == date ] && sort_by='9.1';
+  report_output=$(
+    generate_lot_state_report                    \
+    "${report_label}"                            \
+    1,2,3,4,5,6,7,8,9                            \
+    ${sort_by}                                   \
+    -e '10.HVT' -e '20.PBA' -e '40.BKE' -e '50.LOS'
+  ) || return ${?};
+
+  printf '%s\n' "${report_output}"               \
+  | awk                                          \
+    -F'|'                                        \
+    -v filter_type="${filter_type}"              \
+    -v lower="${lower}"                          \
+    -v upper="${upper}"                          \
+    -v report_label="${report_label}"            \
+    '
+      BEGIN {
+        FS = "|";
+        OFS = "|";
+        total = 0;
+        count = 0;
+      }
+
+      /OPEN_DATE/ {
+        print;
+        next;
+      }
+
+      NF == 9 {
+        value = $4 + 0;
+        keep = 0;
+
+        if (filter_type == "pnl") {
+          # keep = (value >= lower && (upper == "" || value <= upper));
+          keep = (value >= lower && (upper == "" || value < upper));
+        }
+        else if (filter_type == "date") {
+          # keep = ($9 >= lower && $9 <= upper);
+          keep = ($9 >= lower && $9 < upper);
+        }
+
+        if (keep) {
+          split($1, first_field, "\t");
+          $1 = sprintf("%4d\t%s", ++count, first_field[2]);
+          total += value;
+          print $0;
+        }
+        next;
+      }
+
+      END {
+        printf "%-18s: $%10.3f\n", report_label, total;
+      }
+    ';
+  local pipeline_status=("${PIPESTATUS[@]}");
+
+  return ${pipeline_status[1]:-0};
+}
+#-----------------------------------------------------------------------
+# Display lots whose unrealized P&L is within an half-closed range.
+# An omitted upper bound means no upper limit.
+function lots_in_pnl_range()
+{
+  local lower="${1:--10}";
+  local upper="${2:-}";
+
+  if [[ ! "${lower}" =~ ^-?([0-9]+([.][0-9]*)?|[.][0-9]+)$ ]]; then
+    printf '*** INVALID P&L LOWER BOUND: %s\n' "${lower}" >&2;
+    return 2;
+  fi
+
+  if [[ -n "${upper}" ]]; then
+    if [[ ! "${upper}" =~ ^-?([0-9]+([.][0-9]*)?|[.][0-9]+)$ ]]; then
+      printf '*** INVALID P&L UPPER BOUND: %s\n' "${upper}" >&2;
+      return 2;
+    fi
+    if ! awk -v lo="${lower}" -v hi="${upper}" 'BEGIN { exit !(hi >= lo) }'; then
+      printf '*** P&L UPPER BOUND IS BELOW LOWER BOUND.\n' >&2;
+      return 2;
+    fi
+  fi
+
+  local report_label="## PNL >= ${lower}";
+  if [[ -n "${upper}" ]]; then
+    report_label="## PNL [${lower}, ${upper})";
+  fi
+
+  filter_lot_state_report                        \
+  "${report_label}"                              \
+  pnl "${lower}" "${upper}"                      \
+  ;
+
+  return 0;
+}
+#-----------------------------------------------------------------------
+# Display lots opened within a relative, half-closed calendar-day range.
+# Examples: 7d = today and the previous six days; 7d 2d =
+# six days ago through two days ago, inclusive.
+function lots_in_date_range()
+{
+  local days="${1:?*** MISSING DATE RANGE! ***}";
+  local end_days="${2:-0d}";
+
+  if [[ ! "${days}" =~ ^[0-9]+[dD]$ || ! "${end_days}" =~ ^[0-9]+[dD]$ ]]; then
+    printf '*** DATE ARGUMENTS MUST USE RELATIVE DAYS (e.g. 7d 2d).\n' >&2;
+    return 2;
+  fi
+
+  local day_count=$((10#${days%[dD]}));
+  local end_offset=$((10#${end_days%[dD]}));
+  if (( day_count < 1 )); then
+    printf '*** DATE RANGE MUST INCLUDE AT LEAST ONE DAY.\n' >&2;
+    return 2;
+  fi
+
+  local start_offset=$((day_count - 1));
+  if (( end_offset > start_offset )); then
+    printf '*** END DATE CANNOT BE OLDER THAN THE START DATE.\n' >&2;
+    return 2;
+  fi
+
+  local start_date end_date;
+  start_date=$(TZ=America/New_York date -d "${start_offset} days ago" +%F) || return 1;
+  end_date=$(TZ=America/New_York date -d "${end_offset} days ago" +%F) || return 1;
+
+  filter_lot_state_report                        \
+  "## DATE [${start_date}, ${end_date})"         \
+  date "${start_date}" "${end_date}"             \
+  ;
+
+  return 0;
+}
+#-----------------------------------------------------------------------
+# Public dispatcher: default P&L >= -10; numeric arguments select P&L;
+# an argument ending in d/D selects the relative open-date range.
+function view_lots_range()
+{
+  local first="${1:-}";
+  local second="${2:-}";
+
+  if (( $# == 0 )); then
+    lots_in_pnl_range -10;
+    return ${?};
+  fi
+
+  if [[ "${first}" =~ ^-?([0-9]+([.][0-9]*)?|[.][0-9]+)$ ]]; then
+    if (( $# > 2 )); then
+      printf '*** TOO MANY P&L FILTER ARGUMENTS.\n' >&2;
+      return 2;
+    fi
+    lots_in_pnl_range "${first}" "${second}";
+    return ${?};
+  fi
+
+  if [[ "${first}" =~ ^[0-9]+[dD]$ ]]; then
+    if (( $# > 2 )); then
+      printf '*** TOO MANY DATE FILTER ARGUMENTS.\n' >&2;
+      return 2;
+    fi
+    lots_in_date_range "${first}" "${second:-0d}";
+    return ${?};
+  fi
+
+  printf '*** INVALID FILTER: %s\n' "${first}" >&2;
+  printf '    Use: vl.pnlge [lower [upper]] | [Nd [Md]]\n' >&2;
+  return 2;
+}
+alias vl.vlr=view_lots_range;
+
+#-----------------------------------------------------------------------
+function vlr_demo_1()
+{
+  view_lots_range -50000  -20000 ; echo;
+  view_lots_range -20000  -10000 ; echo;
+  view_lots_range -10000  -5000  ; echo;
+
+  # view_lots_range -5000   -1000  ; echo;
+  view_lots_range -5000   -4000  ; echo;
+  view_lots_range -4000   -3000  ; echo;
+  view_lots_range -3000   -2000  ; echo;
+  view_lots_range -2000   -1000  ; echo;
+  view_lots_range -1000   -500   ; echo;
+
+  view_lots_range -500    -100   ; echo;
+  view_lots_range -100    -50    ; echo;
+  view_lots_range -50     -20    ; echo;
+  view_lots_range -20     -10    ; echo;
+  view_lots_range -10       0    ; echo;
+
+  return 0;
+}
+
+#-----------------------------------------------------------------------
+function vlr_demo_2()
+{
+  view_lots_range 2000d  360d ; echo;
+
+  # view_lots_range 510d  480d ; echo;
+  # view_lots_range 480d  450d ; echo;
+  # view_lots_range 450d  420d ; echo;
+  # view_lots_range 420d  390d ; echo;
+  # view_lots_range 390d  360d ; echo;
+
+  view_lots_range 360d  300d ; echo;
+  view_lots_range 300d  270d ; echo;
+  view_lots_range 270d  210d ; echo;
+  view_lots_range 210d  180d ; echo;
+  view_lots_range 180d  150d ; echo;
+  view_lots_range 150d  120d ; echo;
+  view_lots_range 120d  90d  ; echo;
+  view_lots_range 90d   60d  ; echo;
+  view_lots_range 60d   30d  ; echo;
+
+  view_lots_range 30d   21d  ; echo;
+  view_lots_range 21d   14d  ; echo;
+  view_lots_range 14d   7d   ; echo;
+  view_lots_range 7d    0d   ; # echo;
+
+  return 0;
+}
+
+#-----------------------------------------------------------------------
+function vlr_demo_3()
+{
+  function adjust_day()
+  {
+    d_start=$((${1}*7/5));
+    d_end=$((${2}*7/5));
+    return 0;
+  }
+
+  local d_start=0;
+  local d_end=0;
+
+  adjust_day 420  390;
+  view_lots_range ${d_start}d ${d_end}d ; echo;
+  adjust_day 390  360;
+  view_lots_range ${d_start}d ${d_end}d ; echo;
+  adjust_day 360  300;
+  view_lots_range ${d_start}d ${d_end}d ; echo;
+  adjust_day 300  270;
+  view_lots_range ${d_start}d ${d_end}d ; echo;
+  adjust_day 270  210;
+  view_lots_range ${d_start}d ${d_end}d ; echo;
+  adjust_day 210  180;
+  view_lots_range ${d_start}d ${d_end}d ; echo;
+  adjust_day 180  150;
+  view_lots_range ${d_start}d ${d_end}d ; echo;
+  adjust_day 150  120;
+  view_lots_range ${d_start}d ${d_end}d ; echo;
+  adjust_day 120  90;
+  view_lots_range ${d_start}d ${d_end}d  ; echo;
+  adjust_day  90   60;
+  view_lots_range ${d_start}d ${d_end}d  ; echo;
+  adjust_day  60   30;
+  view_lots_range ${d_start}d ${d_end}d  ; echo;
+
+  adjust_day  30   21;
+  view_lots_range ${d_start}d ${d_end}d  ; echo;
+  adjust_day  21   14;
+  view_lots_range ${d_start}d ${d_end}d  ; echo;
+  adjust_day  14   7;
+  view_lots_range ${d_start}d ${d_end}d   ; echo;
+  adjust_day   7    0;
+  view_lots_range ${d_start}d ${d_end}d   ; # echo;
+
+  return 0;
+}
+
+#-----------------------------------------------------------------------
+function vlr_demo_4()
+{
+  function set_weeks()
+  {
+    local -i w_from=${1:-1}; # oldest
+    local -i w_to=${2:-0}; # most recent
+  
+    local -l weekday=${3:-$(date +'%a')};
+    local -i offset='';
+
+    case ${weekday} in 
+    sun) offset=0;;
+    mon) offset=1;;
+    tue) offset=2;;
+    wed) offset=3;;
+    thu) offset=4;;
+    fri) offset=5;;
+    sat) offset=6;;
+    esac
+  
+    let d_start='7*w_from + offset + 1';
+    let d_end='7*w_to + offset';
+
+    # view_lots_range ${d_start}d  ${d_end}d
+    # declare -p offset d_start d_end;
+
+    return 0;
+  }
+
+  set_weeks 28 24;
+  view_lots_range ${d_start}d  ${d_end}d
+  echo;
+  set_weeks 24 20;
+  view_lots_range ${d_start}d  ${d_end}d
+  echo;
+  set_weeks 20 16;
+  view_lots_range ${d_start}d  ${d_end}d
+  echo;
+  set_weeks 16 12;
+  view_lots_range ${d_start}d  ${d_end}d
+  echo;
+  set_weeks 12 8;
+  view_lots_range ${d_start}d  ${d_end}d
+  echo;
+  set_weeks 8 4;
+  view_lots_range ${d_start}d  ${d_end}d
+  echo;
+
+  # this month:
+  set_weeks 4 3;
+  view_lots_range ${d_start}d  ${d_end}d
+  echo;
+  set_weeks 3 2;
+  view_lots_range ${d_start}d  ${d_end}d
+  echo;
+  set_weeks 2 1;
+  view_lots_range ${d_start}d  ${d_end}d
+  echo;
+  set_weeks 1 0;
+  view_lots_range ${d_start}d  ${d_end}d
+  echo;
+
+  return 0;
+}
 
 #=======================================================================
 # MAIN
