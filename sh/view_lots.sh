@@ -830,7 +830,7 @@ function vlr_demo_1()
   view_lots_range -100    -50    ; echo;
   view_lots_range -50     -20    ; echo;
   view_lots_range -20     -10    ; echo;
-  view_lots_range -10       0    ; echo;
+  view_lots_range -10      5000  ; echo;
 
   return 0;
 }
