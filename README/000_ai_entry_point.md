@@ -33,7 +33,7 @@ flowchart TD
     K -- Yes --> M([Recovery checkpoint complete])
 ```
 
-Operational guardrails: preserve unrelated changes; validate before committing; never commit without authorization; after every successful commit, run the configured repository recovery-archive target and verify its integrity. The project-specific archive filename, location, retention, and restoration procedure are defined in `README/100_trading_intel_project.md`.
+Operational guardrails: preserve unrelated changes; validate before committing; never commit without authorization; after every successful commit, run the configured repository recovery-archive target and verify its integrity. **Never delete the project-local `trading_intel.zip` or the `README/` directory during workbench cleanup.** Keep the active project and its recovery documentation intact; remove redundant external archives or temporary recovery artifacts when the Architect explicitly directs, without unnecessary confirmation. The project-specific archive filename, location, retention, and restoration procedure are defined in `README/100_trading_intel_project.md`.
 
 ## Translational Cycle — operational flow
 
