@@ -117,13 +117,13 @@ repo/
 data/jsonl/
 data/psv/
 data/stage/
-notes/
+# notes/
 z_update_bundle/
 
 data/*
-!data/ibkr_lot_inventory.csv
+# !data/ibkr_lot_inventory.csv
 !data/ibkr_lot_inventory.csv.test
-!data/ibkr_position_inventory.jsonl
+# !data/ibkr_position_inventory.jsonl
 !data/ibkr_position_inventory.jsonl.test
 
 prompts*

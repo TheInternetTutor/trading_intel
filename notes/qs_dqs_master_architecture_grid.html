@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Q.S. / DQS Master Integration Architecture</title>
+<style>
+:root{--bg:#070b12;--border:#7890a8;--white:#eaf2f9;--muted:#9fb2c5;--flow:#c9d7e5;--control:#8fb4d6;--agg:#6fa6d1;--cell:14px}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--white);font-family:"Segoe UI",Arial,sans-serif}
+body{display:flex;justify-content:center;align-items:center;padding:24px}
+#canvas{position:relative;overflow:hidden;border:1px solid #25374a;border-radius:14px;background:radial-gradient(circle at 82% 48%,rgba(46,91,125,.14),transparent 34%),radial-gradient(circle at 16% 20%,rgba(35,70,100,.10),transparent 28%),var(--bg);box-shadow:0 20px 60px rgba(0,0,0,.45)}
+#grid{position:absolute;inset:0;z-index:1;background-image:linear-gradient(rgba(90,130,165,.065) 1px,transparent 1px),linear-gradient(90deg,rgba(90,130,165,.065) 1px,transparent 1px);background-size:var(--cell) var(--cell)}
+#objects{position:absolute;inset:0;z-index:3}.box{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px 8px;border:1.5px solid var(--border);border-radius:7px;background:linear-gradient(180deg,rgba(18,29,43,.97),rgba(9,16,25,.97));color:var(--white);font-size:13px;font-weight:600;letter-spacing:.02em;box-shadow:inset 0 0 18px rgba(100,150,190,.035)}
+.directive{border-color:#d7e7f5;background:linear-gradient(180deg,#162638,#0c1521)}.master{border-color:#b8d4e8;box-shadow:inset 0 0 20px rgba(140,190,225,.07),0 0 18px rgba(100,160,205,.07)}.pcas{border-color:#9ab0c3}
+svg{position:absolute;inset:0;width:100%;height:100%;z-index:2;overflow:visible;pointer-events:none}.flow,.control,.aggregate{fill:none;vector-effect:non-scaling-stroke}.flow{stroke:var(--flow);stroke-width:2.2}.control{stroke:var(--control);stroke-width:1.8;stroke-dasharray:6 5}.aggregate{stroke:var(--agg);stroke-width:2.4}
+.title{position:absolute;left:2%;top:2%;z-index:4;font-size:14px;letter-spacing:.16em;color:var(--muted);font-weight:600}.legend{position:absolute;right:2%;bottom:2%;z-index:4;display:flex;gap:18px;color:var(--muted);font-size:11px}.legend span{display:inline-flex;align-items:center;gap:6px}.sample{display:inline-block;width:24px;border-top:2px solid var(--flow)}.sample.dash{border-top-color:var(--control);border-top-style:dashed}.sample.bus{border-top:3px solid var(--agg)}
+</style>
+</head>
+<body>
+<main id="canvas" aria-label="Q.S. and DQS Master Integration Architecture">
+<div id="grid"></div><div class="title">Q.S. / DQS MASTER INTEGRATION ARCHITECTURE</div><svg id="wires" aria-hidden="true"></svg><div id="objects"></div>
+<div class="legend"><span><i class="sample"></i> information flow</span><span><i class="sample dash"></i> directive influence</span><span><i class="sample bus"></i> aggregation bus</span></div>
+</main>
+<script>
+/* Single source of truth: change these values to scale/reconfigure the diagram. */
+const CFG={cols:72,rows:54,cellSize:14,boxW:8,boxH:4,smallGap:2,mediumGap:4,largeGap:6,paddingX:4,paddingY:4};
+
+const B=(name,x,y,w=CFG.boxW,h=CFG.boxH,cls="box")=>({name,x,y,w,h,cls});
+const boxes=[
+ B("Account Data",4,15),B("Quant Data",4,25),B("Lots Data",4,35),
+ B("Account Q.S.",20,15),B("Quant Q.S.",20,25),B("Lots Q.S.",20,35),
+ B("Account DQS",36,15),B("Quant DQS",36,25),B("Lots DQS",36,35),
+ B("Q.S. Directive",20,4,8,4,"box directive"),
+ B("D.Q.S. Directive",36,4,8,4,"box directive"),
+ B("Master Integration Directive",52,4,12,4,"box directive"),
+ B("PCAS",36,45),B("Master Q.S.",56,25,8,4,"box master"),B("Master DQS",66,25,4,4,"box master")
+];
+const byName=Object.fromEntries(boxes.map(b=>[b.name,b]));
+const pxX=x=>x*CFG.cellSize,pxY=y=>y*CFG.cellSize;
+const center=b=>({x:pxX(b.x+b.w/2),y:pxY(b.y+b.h/2)});
+const edgeLeft=b=>({x:pxX(b.x),y:pxY(b.y+b.h/2)});
+const edgeRight=b=>({x:pxX(b.x+b.w),y:pxY(b.y+b.h/2)});
+const edgeTop=b=>({x:pxX(b.x+b.w/2),y:pxY(b.y)});
+const edgeBottom=b=>({x:pxX(b.x+b.w/2),y:pxY(b.y+b.h)});
+const svg=document.getElementById("wires");
+svg.setAttribute("viewBox",`0 0 ${pxX(CFG.cols)} ${pxY(CFG.rows)}`);svg.setAttribute("preserveAspectRatio","none");
+const NS="http://www.w3.org/2000/svg",defs=document.createElementNS(NS,"defs");
+function marker(id,color){const m=document.createElementNS(NS,"marker");m.id=id;m.setAttribute("markerWidth",9);m.setAttribute("markerHeight",9);m.setAttribute("refX",8);m.setAttribute("refY",4.5);m.setAttribute("orient","auto");const p=document.createElementNS(NS,"path");p.setAttribute("d","M0 0L9 4.5L0 9z");p.setAttribute("fill",color);m.appendChild(p);defs.appendChild(m)}
+marker("arrow-flow","#c9d7e5");marker("arrow-control","#8fb4d6");marker("arrow-agg","#6fa6d1");svg.appendChild(defs);
+function path(points,cls,arrow){const p=document.createElementNS(NS,"path");p.setAttribute("d",points.map((q,i)=>(i?"L":"M")+q.x+" "+q.y).join(" "));p.setAttribute("class",cls);if(arrow)p.setAttribute("marker-end",`url(#${arrow})`);svg.appendChild(p)}
+for(const r of ["Account","Quant","Lots"]){path([edgeRight(byName[r+" Data"]),edgeLeft(byName[r+" Q.S."])],"flow","arrow-flow");path([edgeRight(byName[r+" Q.S."]),edgeLeft(byName[r+" DQS"])],"flow","arrow-flow")}
+path([edgeRight(byName["Master Q.S."]),edgeLeft(byName["Master DQS"])],"flow","arrow-flow");
+
+const qs=byName["Q.S. Directive"],qsX=17;
+path([edgeBottom(qs),{x:pxX(qsX),y:pxY(qs.y+qs.h)},{x:pxX(qsX),y:pxY(39)}],"control");
+for(const r of ["Account","Quant","Lots"]){const q=byName[r+" Q.S."];path([{x:pxX(qsX),y:center(q).y},edgeLeft(q)],"control")}
+const mqs=byName["Master Q.S."];path([{x:pxX(qsX),y:pxY(39)},{x:pxX(52),y:pxY(39)},{x:pxX(52),y:edgeBottom(mqs).y},edgeBottom(mqs)],"control","arrow-control");
+
+const dqs=byName["D.Q.S. Directive"],dqsX=33;
+path([edgeBottom(dqs),{x:pxX(dqsX),y:pxY(dqs.y+dqs.h)},{x:pxX(dqsX),y:pxY(39)}],"control");
+for(const r of ["Account","Quant","Lots"]){const q=byName[r+" DQS"];path([{x:pxX(dqsX),y:center(q).y},edgeLeft(q)],"control")}
+const mdqs=byName["Master DQS"];path([edgeTop(dqs),{x:pxX(dqsX),y:pxY(1)},{x:pxX(68),y:pxY(1)},{x:pxX(68),y:edgeTop(mdqs).y},edgeTop(mdqs)],"control","arrow-control");
+
+const aggX=48;
+for(const r of ["Account","Quant","Lots"]){const q=byName[r+" DQS"];path([edgeRight(q),{x:pxX(aggX),y:center(q).y}],"aggregate")}
+path([edgeBottom(byName["PCAS"]),{x:pxX(aggX),y:edgeBottom(byName["PCAS"]).y}],"aggregate");
+path([{x:pxX(aggX),y:center(byName["Account DQS"]).y},{x:pxX(aggX),y:pxY(47)},{x:pxX(54),y:pxY(47)},{x:pxX(54),y:center(mqs).y}],"aggregate","arrow-agg");
+
+const mid=byName["Master Integration Directive"];path([edgeBottom(mid),{x:center(mqs).x,y:edgeBottom(mid).y},edgeTop(mqs)],"control","arrow-control");
+
+const obj=document.getElementById("objects");
+for(const b of boxes){const e=document.createElement("div");e.className=b.cls;e.textContent=b.name;e.style.left=pxX(b.x)+"px";e.style.top=pxY(b.y)+"px";e.style.width=pxX(b.w)+"px";e.style.height=pxY(b.h)+"px";obj.appendChild(e)}
+document.getElementById("canvas").style.width=pxX(CFG.cols)+"px";document.getElementById("canvas").style.height=pxY(CFG.rows)+"px";document.documentElement.style.setProperty("--cell",CFG.cellSize+"px");
+</script>
+</body></html>
